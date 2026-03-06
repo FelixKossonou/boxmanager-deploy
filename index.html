@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BoxManager — Panel Admin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1d26;
+      border-bottom: 2px solid #00e5a0;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header h1 { font-size: 1.4rem; color: #00e5a0; }
+    header span { font-size: 1.6rem; }
+
+    #status-bar {
+      background: #12151e;
+      padding: 8px 32px;
+      font-size: 0.85rem;
+      color: #888;
+      border-bottom: 1px solid #2a2d36;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #555;
+      display: inline-block;
+      transition: background 0.3s;
+    }
+    #status-dot.connected { background: #00e5a0; box-shadow: 0 0 6px #00e5a0; }
+    #status-dot.error     { background: #ff4f4f; }
+    #status-dot.connecting { background: #f5a623; animation: pulse 1s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    /* --- Config Panel --- */
+    #config-panel {
+      background: #1a1d26;
+      border: 1px solid #2a2d36;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 32px;
+    }
+    #config-panel h2 { font-size: 1rem; color: #00e5a0; margin-bottom: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media(max-width: 700px) { .config-grid { grid-template-columns: 1fr; } }
+
+    label { display: block; font-size: 0.78rem; color: #888; margin-bottom: 6px; }
+    input[type="text"] {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2a2d36;
+      border-radius: 8px;
+      color: #e0e0e0;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: #00e5a0; }
+
+    .config-hint {
+      font-size: 0.78rem;
+      color: #555;
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: #0f1117;
+      border-radius: 8px;
+      border: 1px solid #2a2d36;
+      line-height: 1.5;
+    }
+    .config-hint a { color: #00e5a0; text-decoration: none; }
+
+    .btn {
+      padding: 11px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary { background: #00e5a0; color: #0f1117; }
+    .btn-primary:hover:not(:disabled) { opacity: 0.85; }
+    .btn-danger  { background: #ff4f4f; color: #fff; }
+    .btn-danger:hover:not(:disabled)  { opacity: 0.85; }
+    .btn-success { background: #00e5a0; color: #0f1117; }
+    .btn-success:hover:not(:disabled) { opacity: 0.85; }
+    .btn-ghost   { background: #2a2d36; color: #ccc; }
+    .btn-ghost:hover:not(:disabled)   { background: #353844; }
+
+    /* --- Stats --- */
+    #stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    @media(max-width: 700px) { #stats-row { grid-template-columns: 1fr 1fr; } }
+    .stat-card {
+      background: #1a1d26;
+      border: 1px solid #2a2d36;
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-align: center;
+    }
+    .stat-card .number { font-size: 2rem; font-weight: 700; color: #00e5a0; }
+    .stat-card .label  { font-size: 0.75rem; color: #888; margin-top: 4px; }
+
+    /* --- Search & toolbar --- */
+    #toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    #search {
+      flex: 1;
+      min-width: 200px;
+      background: #1a1d26;
+      border: 1px solid #2a2d36;
+      border-radius: 8px;
+      color: #e0e0e0;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    #search:focus { border-color: #00e5a0; }
+
+    /* --- Box Grid --- */
+    #boxes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .box-card {
+      background: #1a1d26;
+      border: 1px solid #2a2d36;
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .box-card.blocked { border-color: #ff4f4f33; background: #1f1520; }
+    .box-card:hover   { border-color: #3a3d46; }
+
+    .box-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .box-model  { font-weight: 700; font-size: 1rem; }
+    .box-brand  { font-size: 0.78rem; color: #888; margin-top: 2px; }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-online   { background: #00e5a022; color: #00e5a0; border: 1px solid #00e5a044; }
+    .badge-offline  { background: #55555522; color: #888;    border: 1px solid #55555544; }
+    .badge-blocked  { background: #ff4f4f22; color: #ff4f4f; border: 1px solid #ff4f4f44; }
+    .badge-free     { background: #00e5a011; color: #00e5a0; border: 1px solid #00e5a022; }
+
+    .box-meta { font-size: 0.78rem; color: #666; margin-bottom: 14px; }
+    .box-meta span { display: inline-block; margin-right: 12px; }
+
+    /* ── Commentaires multiples ── */
+    .comments-section { margin-bottom: 12px; }
+    .comments-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
+    .comment-entry {
+      display: flex; align-items: flex-start; gap: 8px;
+      background: #0f1117; border: 1px solid #2a2d36;
+      border-radius: 6px; padding: 6px 8px;
+    }
+    .comment-entry-body { flex: 1; min-width: 0; }
+    .comment-entry-text { font-size: 0.8rem; color: #ccc; word-break: break-word; }
+    .comment-entry-date { font-size: 0.68rem; color: #555; margin-top: 2px; }
+    .comment-entry-btns { display: flex; gap: 2px; flex-shrink: 0; padding-top: 1px; }
+    .comment-entry-btns button {
+      background: none; border: none; cursor: pointer;
+      font-size: 0.78rem; opacity: 0.45; padding: 0 3px; line-height: 1;
+    }
+    .comment-entry-btns button:hover { opacity: 1; }
+    .comment-input {
+      width: 100%; box-sizing: border-box;
+      background: #0f1117; border: 1px solid #2a2d36;
+      border-radius: 6px; color: #aaa;
+      padding: 7px 10px; font-size: 0.8rem; outline: none;
+    }
+    .comment-input:focus { border-color: #00e5a0; }
+
+    .box-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .box-actions .btn { flex: 1; padding: 9px 12px; font-size: 0.82rem; }
+    .btn-delete { background: #3a1a1a; color: #ff6b6b; border: 1px solid #ff4f4f44; }
+    .btn-delete:hover:not(:disabled) { background: #ff4f4f; color: #fff; }
+    .badge-stale  { background: #ff990022; color: #ff9900; border: 1px solid #ff990044; }
+    .badge-paused { background: #7b5ea722; color: #b09fda; border: 1px solid #7b5ea755; }
+    .box-card.paused { border-color: #7b5ea755; background: #14121e; }
+
+    /* ── Message de verrouillage ── */
+    .lock-msg-section { margin-bottom: 10px; }
+    .lock-msg-label { font-size: 0.68rem; color: #7b5ea7; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .lock-msg-input {
+      width: 100%; box-sizing: border-box;
+      background: #0f1117; border: 1px solid #7b5ea755;
+      border-radius: 6px; color: #b09fda;
+      padding: 7px 10px; font-size: 0.8rem; outline: none;
+    }
+    .lock-msg-input:focus { border-color: #b09fda; }
+    .btn-popup { background: #1a1d26; color: #f5a623; border: 1px solid #f5a62344; }
+    .btn-popup:hover:not(:disabled) { background: #f5a62322; border-color: #f5a623; }
+
+    /* --- Empty state --- */
+    #empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #555;
+    }
+    #empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    #empty-state p { font-size: 0.95rem; }
+
+    /* --- Notification toast --- */
+    #notif {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1a1d26;
+      border: 1px solid #2a2d36;
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 999;
+      max-width: 300px;
+    }
+    #notif.show    { transform: translateY(0); opacity: 1; }
+    #notif.success { border-color: #00e5a0; color: #00e5a0; }
+    #notif.error   { border-color: #ff4f4f; color: #ff4f4f; }
+
+    .section-title {
+      font-size: 0.78rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span>📦</span>
+  <h1>BoxManager — Panel Admin</h1>
+</header>
+
+<div id="status-bar">
+  <span id="status-dot"></span>
+  <span id="status-text">Non connecté — configurez PocketBase ci-dessous</span>
+</div>
+
+<div class="container">
+
+  <!-- Config PocketBase -->
+  <div id="config-panel">
+    <h2>🗄️ Configuration PocketBase</h2>
+    <div class="config-grid">
+      <div>
+        <label>URL du serveur PocketBase</label>
+        <input type="text" id="pb-url" placeholder="http://192.168.1.100:8090" />
+        <div class="config-hint">
+          Entrez l'adresse IP de votre PC suivi du port 8090.<br>
+          Ex: <strong>http://192.168.1.100:8090</strong><br>
+          Pour trouver votre IP : Windows → cmd → <code>ipconfig</code> → "Adresse IPv4"
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; justify-content:flex-start; padding-top:24px;">
+        <button class="btn btn-primary" id="btn-connect" onclick="connectPocketBase()">Connecter</button>
+        <button class="btn btn-ghost" id="btn-disconnect" onclick="disconnect()" style="display:none;">Déconnecter</button>
+        <button class="btn btn-ghost" onclick="saveConfig()">💾 Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div id="stats-row">
+    <div class="stat-card">
+      <div class="number" id="stat-total">—</div>
+      <div class="label">Total boxes</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="stat-online" style="color:#00e5a0">—</div>
+      <div class="label">En ligne</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="stat-blocked" style="color:#ff4f4f">—</div>
+      <div class="label">Bloquées</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="stat-free">—</div>
+      <div class="label">Libres</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <input id="search" type="text" placeholder="🔍 Rechercher une box (ID, modèle, commentaire...)" oninput="filterBoxes()" />
+    <button class="btn btn-danger"  onclick="blockAll()"   id="btn-block-all"   disabled>🔒 Tout bloquer</button>
+    <button class="btn btn-success" onclick="unblockAll()" id="btn-unblock-all" disabled>🔓 Tout débloquer</button>
+    <button class="btn btn-ghost"   onclick="loadBoxes()"  id="btn-refresh"     disabled>🔄 Actualiser</button>
+  </div>
+
+  <div class="section-title" id="boxes-title">Boxes</div>
+
+  <!-- Boxes Grid -->
+  <div id="boxes-grid">
+    <div id="empty-state">
+      <div class="icon">📡</div>
+      <p>Connectez PocketBase pour voir vos boxes</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast notification -->
+<div id="notif"></div>
+
+<script>
+  // ─────────────────────────────────────────────────────────────────
+  // Intercepteur fetch : ajoute automatiquement le header ngrok
+  // (nécessaire pour bypasser l'interstitiel ngrok free tier)
+  // ─────────────────────────────────────────────────────────────────
+  const _origFetch = window.fetch.bind(window);
+  window.fetch = (url, options = {}) => {
+    options.headers = Object.assign({ 'ngrok-skip-browser-warning': 'true' }, options.headers || {});
+    return _origFetch(url, options);
+  };
+
+  // ─────────────────────────────────────────────────────────────────
+  // État global
+  // ─────────────────────────────────────────────────────────────────
+  let pbUrl        = '';
+  let boxesData    = [];   // Tableau de records PocketBase
+  let isConnected  = false;
+  let sseSource    = null;
+  let sseRetryTimer    = null;
+  let statusRefreshTimer = null; // Timer re-rendu automatique (toutes les 10s)
+  let isUserTyping = false;      // True quand un champ de commentaire est actif → bloque tout renderBoxes()
+
+  // ─────────────────────────────────────────────────────────────────
+  // Initialisation : charger config sauvegardée
+  // ─────────────────────────────────────────────────────────────────
+  window.onload = () => {
+    const cfg = JSON.parse(localStorage.getItem('bm_pb_config') || '{}');
+    if (cfg.url) {
+      document.getElementById('pb-url').value = cfg.url;
+      // Auto-connexion si une URL est sauvegardée
+      connectPocketBase();
+    }
+  };
+
+  function saveConfig() {
+    const url = document.getElementById('pb-url').value.trim();
+    localStorage.setItem('bm_pb_config', JSON.stringify({ url }));
+    notify('Configuration sauvegardée', 'success');
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Connexion PocketBase
+  // ─────────────────────────────────────────────────────────────────
+  async function connectPocketBase() {
+    const url = document.getElementById('pb-url').value.trim().replace(/\/$/, '');
+    if (!url) {
+      notify('Entrez l\'URL de PocketBase', 'error');
+      return;
+    }
+    pbUrl = url;
+    setStatus('connecting', 'Connexion en cours...');
+
+    try {
+      // Test de connexion : vérifier que PocketBase répond
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records?perPage=1`, { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) throw new Error('Réponse HTTP ' + res.status);
+
+      // Connexion réussie
+      isConnected = true;
+      setStatus('connected', 'Connecté à PocketBase — ' + pbUrl);
+      document.getElementById('btn-connect').style.display    = 'none';
+      document.getElementById('btn-disconnect').style.display = 'inline-block';
+      document.getElementById('btn-block-all').disabled   = false;
+      document.getElementById('btn-unblock-all').disabled = false;
+      document.getElementById('btn-refresh').disabled     = false;
+
+      await loadBoxes();
+      startSSE();
+      startStatusRefresh();
+    } catch (e) {
+      setStatus('error', 'Impossible de joindre PocketBase : ' + e.message);
+      notify('Connexion échouée — vérifiez l\'URL et que PocketBase est lancé', 'error');
+      isConnected = false;
+    }
+  }
+
+  function disconnect() {
+    isConnected = false;
+    pbUrl = '';
+    boxesData = [];
+    stopSSE();
+    if (statusRefreshTimer) { clearInterval(statusRefreshTimer); statusRefreshTimer = null; }
+    setStatus('disconnected', 'Non connecté');
+    document.getElementById('btn-connect').style.display    = 'inline-block';
+    document.getElementById('btn-disconnect').style.display = 'none';
+    document.getElementById('btn-block-all').disabled   = true;
+    document.getElementById('btn-unblock-all').disabled = true;
+    document.getElementById('btn-refresh').disabled     = true;
+    renderBoxes();
+    updateStats();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Chargement des boxes depuis PocketBase
+  // ─────────────────────────────────────────────────────────────────
+  async function loadBoxes() {
+    if (!isConnected) return;
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records?perPage=200&sort=-created`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      boxesData = data.items || [];
+      // Ne pas recréer le DOM si l'utilisateur est en train de taper un commentaire
+      if (!isUserTyping) renderBoxes();
+      updateStats();
+    } catch (e) {
+      notify('Erreur chargement boxes : ' + e.message, 'error');
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // SSE temps réel — PocketBase notifie le panel à chaque changement
+  // ─────────────────────────────────────────────────────────────────
+  function startSSE() {
+    stopSSE();
+    if (!isConnected || !pbUrl) return;
+
+    sseSource = new EventSource(`${pbUrl}/api/realtime`);
+
+    // Premier événement PocketBase : contient le clientId pour s'abonner
+    sseSource.addEventListener('PB_CONNECT', (e) => {
+      try {
+        const { clientId } = JSON.parse(e.data);
+        // S'abonner à tous les changements de la collection "boxes"
+        fetch(`${pbUrl}/api/realtime`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId, subscriptions: ['boxes'] })
+        });
+      } catch (err) {
+        console.error('SSE PB_CONNECT error:', err);
+      }
+    });
+
+    // Changement détecté dans la collection boxes → recharger
+    sseSource.addEventListener('boxes', () => {
+      loadBoxes();
+    });
+
+    sseSource.onerror = () => {
+      if (isConnected) {
+        setStatus('connecting', 'SSE déconnecté — reconnexion dans 5s...');
+        stopSSE();
+        sseRetryTimer = setTimeout(() => {
+          if (isConnected) startSSE();
+        }, 5000);
+      }
+    };
+
+    sseSource.onopen = () => {
+      if (isConnected) setStatus('connected', 'Connecté à PocketBase — ' + pbUrl);
+    };
+  }
+
+  /**
+   * Lance un timer qui recalcule et réaffiche les statuts en ligne/hors ligne
+   * toutes les 10 secondes — sans attendre un nouveau heartbeat ou un événement SSE.
+   * Essentiel pour montrer "Hors ligne" rapidement quand un câble est débranché.
+   */
+  function startStatusRefresh() {
+    if (statusRefreshTimer) clearInterval(statusRefreshTimer);
+    statusRefreshTimer = setInterval(() => {
+      if (isConnected && !isUserTyping) { renderBoxes(); updateStats(); }
+    }, 2000); // toutes les 2 secondes
+  }
+
+  function stopSSE() {
+    if (sseRetryTimer) { clearTimeout(sseRetryTimer); sseRetryTimer = null; }
+    if (sseSource)     { sseSource.close(); sseSource = null; }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Rendu des cartes de boxes
+  // ─────────────────────────────────────────────────────────────────
+  function renderBoxes() {
+    const grid   = document.getElementById('boxes-grid');
+    const search = document.getElementById('search').value.toLowerCase();
+
+    let entries = boxesData.filter(box => {
+      if (!search) return true;
+      const commentText = parseComments(box.comment).map(c => c.text).join(' ').toLowerCase();
+      return (
+        (box.deviceId   || '').toLowerCase().includes(search) ||
+        (box.label      || '').toLowerCase().includes(search) ||
+        (box.model      || '').toLowerCase().includes(search) ||
+        commentText.includes(search) ||
+        (box.macAddress || '').toLowerCase().includes(search)
+      );
+    });
+
+    document.getElementById('boxes-title').textContent = `Boxes (${entries.length})`;
+
+    if (entries.length === 0) {
+      grid.innerHTML = `<div id="empty-state">
+        <div class="icon">${isConnected ? '📭' : '📡'}</div>
+        <p>${isConnected ? 'Aucune box trouvée' : 'Connectez PocketBase pour voir vos boxes'}</p>
+      </div>`;
+      return;
+    }
+
+    // Tri : bloquées en premier, puis en ligne, puis hors ligne
+    entries.sort((a, b) => {
+      if (a.blocked !== b.blocked) return (b.blocked ? 1 : 0) - (a.blocked ? 1 : 0);
+      if (a.online  !== b.online)  return (b.online  ? 1 : 0) - (a.online  ? 1 : 0);
+      return (a.label || '').localeCompare(b.label || '');
+    });
+
+    grid.innerHTML = entries.map(box => {
+      const isBlocked  = box.blocked === true;
+      const isPaused   = box.paused  === true;
+      const label      = box.label   || box.deviceId || box.id;
+      const comments   = parseComments(box.comment);
+      const lastSeen   = box.updated ? formatDate(box.updated) : '—';
+      const shortId   = (box.deviceId || box.id || '').substring(0, 12);
+
+      // Détection offline intelligente via "lastSeen" :
+      // Ce champ est mis à jour UNIQUEMENT par les heartbeats (toutes les 5s),
+      // contrairement à "updated" qui change aussi lors d'un blocage/commentaire.
+      // Si aucun heartbeat depuis > 12s (= 2+ heartbeats manqués) → hors ligne.
+      const lastHb      = box.lastSeen || box.updated; // fallback sur updated si lastSeen absent
+      const lastUpdate  = lastHb ? new Date(lastHb.replace(' ', 'T')) : null;
+      const secsAgo     = lastUpdate ? (Date.now() - lastUpdate.getTime()) / 1000 : 999;
+      const isReallyOn  = box.online === true && secsAgo < 12;
+      const isStale     = box.online === true && secsAgo >= 12; // marqué online mais injoignable
+
+      // Badge online/offline normal (indépendant de la pause)
+      const onlineBadge = isReallyOn
+        ? `<span class="badge badge-online">● En ligne</span>`
+        : isStale
+          ? `<span class="badge badge-stale">⚠ Non joignable</span>`
+          : `<span class="badge badge-offline">○ Hors ligne</span>`;
+
+      // Badge pause affiché SOUS le badge online — disparaît quand actif
+      const pauseBadge = isPaused
+        ? `<span class="badge badge-paused">⏸ En pause</span>`
+        : '';
+
+      return `
+        <div class="box-card ${isBlocked ? 'blocked' : ''} ${isPaused ? 'paused' : ''}">
+          <div class="box-header">
+            <div>
+              <div class="box-model">${esc(label)}</div>
+              <div class="box-brand">${esc(box.brand || '')} · ID: ${esc(shortId)}...</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+              ${onlineBadge}
+              ${pauseBadge}
+              <span class="badge ${isBlocked ? 'badge-blocked' : 'badge-free'}">
+                ${isBlocked ? '🔒 Bloquée' : '🔓 Libre'}
+              </span>
+            </div>
+          </div>
+          <div class="box-meta">
+            <span>📱 ${esc(box.model || '—')}</span>
+            <span>🕐 ${lastSeen}</span>
+            ${box.macAddress ? `<span title="Adresse MAC">🔌 ${esc(box.macAddress)}</span>` : ''}
+          </div>
+          <div class="box-meta" style="margin-top:-8px;word-break:break-all;">
+            <span title="ID unique de l'appareil" style="font-family:monospace;font-size:0.72rem;color:#555;">
+              ID: ${esc(box.deviceId || box.id || '—')}
+            </span>
+          </div>
+          <div class="comments-section">
+            <div class="comments-list" id="clist-${box.id}">
+              ${renderCommentEntries(box.id, comments)}
+            </div>
+            <input type="text" class="comment-input" id="new-comment-${box.id}"
+              placeholder="Ajouter un commentaire… (Entrée pour valider)"
+              onkeydown="if(event.key==='Enter'&&this.value.trim())addComment('${box.id}',this)">
+          </div>
+          <div class="lock-msg-section">
+            <div class="lock-msg-label">✉️ Envoyer un message</div>
+            <input type="text" class="lock-msg-input" id="lock-msg-${box.id}"
+              placeholder="Tapez un message et appuyez sur Entrée…"
+              onkeydown="if(event.key==='Enter'&&this.value.trim()){saveLockMessage('${box.id}',this);this.value='';}">
+          </div>
+          <div class="box-actions">
+            <button class="btn ${isBlocked ? 'btn-ghost' : 'btn-danger'}"
+              onclick="setBlock('${box.id}', true)" ${isBlocked || isPaused ? 'disabled' : ''}
+              title="${isPaused ? 'Reprenez la box avant de la bloquer' : ''}">
+              🔒 Bloquer
+            </button>
+            <button class="btn ${!isBlocked ? 'btn-ghost' : 'btn-success'}"
+              onclick="setBlock('${box.id}', false)" ${!isBlocked || isPaused ? 'disabled' : ''}
+              title="${isPaused ? 'Reprenez la box avant de la débloquer' : ''}">
+              🔓 Débloquer
+            </button>
+            <button class="btn btn-ghost" id="pause-btn-${box.id}"
+              onclick="togglePause('${box.id}', ${isPaused})"
+              title="${isPaused ? 'Reprendre les heartbeats' : 'Suspendre les heartbeats (économise le tunnel)'}">
+              ${isPaused ? '▶️' : '⏸️'}
+            </button>
+            <button class="btn btn-ghost" id="reboot-btn-${box.id}"
+              onclick="rebootBox('${box.id}', '${esc(label)}', this)"
+              ${isBlocked ? 'disabled' : ''}
+              title="${isBlocked ? 'Déverrouillez la box avant de la redémarrer' : 'Redémarrer la box à distance'}">
+              🔁
+            </button>
+            <button class="btn btn-delete"
+              onclick="deleteBox('${box.id}', '${esc(label)}', ${isBlocked}, ${isPaused})"
+              ${isBlocked || isPaused ? 'disabled' : ''}
+              title="${isBlocked ? 'Déverrouillez la box avant de la supprimer' : isPaused ? 'Reprenez la box avant de la supprimer' : 'Supprimer'}">
+              🗑️
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+
+    attachCommentListeners();
+  }
+
+  /**
+   * Attache les listeners focus/blur sur tous les champs de commentaire.
+   *   focus → suspend le timer de rafraîchissement (plus aucun renderBoxes pendant la frappe)
+   *   blur  → relance le timer normalement
+   * Appelé après chaque renderBoxes() pour recapturer les nouveaux éléments DOM.
+   */
+  function attachCommentListeners() {
+    document.querySelectorAll('.comment-input, .lock-msg-input').forEach(el => {
+      el.addEventListener('focus', () => {
+        isUserTyping = true;
+        // Stopper le timer : plus aucun renderBoxes() pendant la frappe
+        if (statusRefreshTimer) {
+          clearInterval(statusRefreshTimer);
+          statusRefreshTimer = null;
+        }
+      });
+      el.addEventListener('blur', () => {
+        isUserTyping = false;
+        // Rattraper les mises à jour manquées pendant la frappe, puis relancer le timer
+        renderBoxes();
+        updateStats();
+        startStatusRefresh();
+      });
+    });
+  }
+
+  function updateStats() {
+    const total   = boxesData.length;
+    const online  = boxesData.filter(b => {
+      if (!b.online) return false;
+      const lastHb = b.lastSeen || b.updated;
+      const lastUpdate = lastHb ? new Date(lastHb.replace(' ', 'T')) : null;
+      const secsAgo = lastUpdate ? (Date.now() - lastUpdate.getTime()) / 1000 : 999;
+      return secsAgo < 12;
+    }).length;
+    const blocked = boxesData.filter(b => b.blocked).length;
+    document.getElementById('stat-total').textContent   = total   || '—';
+    document.getElementById('stat-online').textContent  = online  || (total ? '0' : '—');
+    document.getElementById('stat-blocked').textContent = blocked || (total ? '0' : '—');
+    document.getElementById('stat-free').textContent    = total ? (total - blocked) : '—';
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Actions sur les boxes
+  // ─────────────────────────────────────────────────────────────────
+  async function setBlock(recordId, blocked) {
+    if (!isConnected) return;
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records/${recordId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocked })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      notify(blocked ? '🔒 Box bloquée' : '🔓 Box débloquée', blocked ? 'error' : 'success');
+      await loadBoxes();
+    } catch (e) {
+      notify('Erreur : ' + e.message, 'error');
+    }
+  }
+
+  // ── Système de commentaires multiples ──────────────────────────────
+
+  /** Parse le champ comment (JSON ou texte legacy) → tableau d'entrées */
+  function parseComments(raw) {
+    if (!raw) return [];
+    try {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return arr;
+    } catch(e) {}
+    // Rétrocompatibilité : ancien commentaire en texte simple
+    return [{ id: '0', text: raw, date: '' }];
+  }
+
+  /** Génère le HTML des entrées de commentaires pour une box */
+  function renderCommentEntries(boxId, comments) {
+    if (!comments.length) return '';
+    return comments.map(c => `
+      <div class="comment-entry" id="ce-${boxId}-${c.id}">
+        <div class="comment-entry-body">
+          <div class="comment-entry-text">${esc(c.text)}</div>
+          ${c.date ? `<div class="comment-entry-date">${esc(c.date)}</div>` : ''}
+        </div>
+        <div class="comment-entry-btns">
+          <button onclick="editComment('${boxId}','${c.id}')" title="Modifier">✏️</button>
+          <button onclick="deleteComment('${boxId}','${c.id}')" title="Supprimer">🗑️</button>
+        </div>
+      </div>`).join('');
+  }
+
+  /** Ajoute un nouveau commentaire (appelé sur touche Entrée) */
+  async function addComment(boxId, inputEl) {
+    const text = inputEl.value.trim();
+    if (!text || !isConnected) return;
+    const box = boxesData.find(b => b.id === boxId);
+    if (!box) return;
+    const comments = parseComments(box.comment);
+    const now  = new Date();
+    const date = now.toLocaleDateString('fr-FR') + ' '
+               + now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    comments.push({ id: String(now.getTime()), text, date });
+    await saveComments(boxId, comments);
+    inputEl.value = '';
+  }
+
+  /** Modifie un commentaire existant */
+  async function editComment(boxId, commentId) {
+    const box = boxesData.find(b => b.id === boxId);
+    if (!box) return;
+    const comments = parseComments(box.comment);
+    const c = comments.find(c => c.id === commentId);
+    if (!c) return;
+    const newText = prompt('Modifier le commentaire :', c.text);
+    if (newText === null) return; // annulé
+    if (!newText.trim()) { await deleteComment(boxId, commentId); return; }
+    c.text = newText.trim();
+    await saveComments(boxId, comments);
+  }
+
+  /** Supprime un commentaire */
+  async function deleteComment(boxId, commentId) {
+    const box = boxesData.find(b => b.id === boxId);
+    if (!box) return;
+    const comments = parseComments(box.comment).filter(c => c.id !== commentId);
+    await saveComments(boxId, comments);
+  }
+
+  /** Sauvegarde la liste de commentaires dans PocketBase et met à jour le DOM */
+  async function saveComments(boxId, comments) {
+    if (!isConnected) return;
+    const box = boxesData.find(b => b.id === boxId);
+    if (!box) return;
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records/${boxId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment: JSON.stringify(comments) })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      // Mettre à jour les données locales
+      box.comment = JSON.stringify(comments);
+      // Rafraîchir uniquement la liste des commentaires (pas tout le DOM)
+      const listEl = document.getElementById('clist-' + boxId);
+      if (listEl) listEl.innerHTML = renderCommentEntries(boxId, comments);
+    } catch(e) {
+      notify('Erreur sauvegarde commentaire : ' + e.message, 'error');
+    }
+  }
+
+  /**
+   * Bascule l'état pause/reprise d'une box.
+   * Quand paused=true → la box arrête d'envoyer ses heartbeats (SSE reste actif).
+   * Utile pour économiser le quota ngrok free (40 req/min) quand beaucoup de boxes sont connectées.
+   */
+  async function togglePause(boxId, currentlyPaused) {
+    if (!isConnected) return;
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records/${boxId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paused: !currentlyPaused })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      // Mise à jour locale immédiate sans attendre le SSE
+      const box = boxesData.find(b => b.id === boxId);
+      if (box) box.paused = !currentlyPaused;
+      notify(currentlyPaused ? '▶️ Box reprise' : '⏸️ Box mise en pause', 'success');
+      if (!isUserTyping) renderBoxes();
+    } catch(e) {
+      notify('Erreur pause/reprise : ' + e.message, 'error');
+    }
+  }
+
+  /**
+   * Envoie une commande de redémarrage à la box via PocketBase (champ reboot=true).
+   * BoxService détecte le changement via SSE et exécute le reboot sur l'appareil.
+   */
+  async function rebootBox(boxId, label, btn) {
+    if (!isConnected) return;
+    if (!confirm(`Redémarrer la box "${label}" ?\n\nL'appareil va redémarrer dans quelques secondes.`)) return;
+    const orig = btn.textContent;
+    btn.textContent = '⏳';
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records/${boxId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reboot: true })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      notify('🔁 Commande de redémarrage envoyée', 'success');
+    } catch(e) {
+      notify('Erreur redémarrage : ' + e.message, 'error');
+    }
+    // Réactiver le bouton après 15s (temps suffisant pour que la box redémarre)
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.disabled = false;
+    }, 15000);
+  }
+
+  async function blockAll() {
+    if (!isConnected) return;
+    if (!confirm('Bloquer TOUTES les boxes ?')) return;
+    document.getElementById('btn-block-all').disabled = true;
+    try {
+      await Promise.all(boxesData.map(box =>
+        fetch(`${pbUrl}/api/collections/boxes/records/${box.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blocked: true })
+        })
+      ));
+      notify('Toutes les boxes bloquées', 'error');
+      await loadBoxes();
+    } catch (e) {
+      notify('Erreur : ' + e.message, 'error');
+    } finally {
+      document.getElementById('btn-block-all').disabled = false;
+    }
+  }
+
+  async function unblockAll() {
+    if (!isConnected) return;
+    if (!confirm('Débloquer TOUTES les boxes ?')) return;
+    document.getElementById('btn-unblock-all').disabled = true;
+    try {
+      await Promise.all(boxesData.map(box =>
+        fetch(`${pbUrl}/api/collections/boxes/records/${box.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blocked: false })
+        })
+      ));
+      notify('Toutes les boxes débloquées', 'success');
+      await loadBoxes();
+    } catch (e) {
+      notify('Erreur : ' + e.message, 'error');
+    } finally {
+      document.getElementById('btn-unblock-all').disabled = false;
+    }
+  }
+
+  async function deleteBox(recordId, label, isBlocked, isPaused) {
+    if (!isConnected) return;
+    // Sécurité : impossible de supprimer une box verrouillée
+    if (isBlocked) {
+      notify(`🔒 Impossible de supprimer "${label}" : déverrouillez-la d'abord.`, 'error');
+      return;
+    }
+    // Sécurité : impossible de supprimer une box en pause
+    if (isPaused) {
+      notify(`⏸️ Impossible de supprimer "${label}" : reprenez-la d'abord.`, 'error');
+      return;
+    }
+    if (!confirm(`Supprimer définitivement la box "${label}" du panel ?\n\nCela ne désinstalle pas l'app sur l'appareil.`)) return;
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records/${recordId}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      notify(`🗑️ Box "${label}" supprimée`, 'success');
+      await loadBoxes();
+    } catch (e) {
+      notify('Erreur suppression : ' + e.message, 'error');
+    }
+  }
+
+  function filterBoxes() { renderBoxes(); }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Message envoyé à la box (popup 20 secondes sur l'écran)
+  // ─────────────────────────────────────────────────────────────────
+
+  /** Envoie le message dans lock_message → popup 20s sur l'écran de la box */
+  async function saveLockMessage(boxId, inputEl) {
+    if (!isConnected) return;
+    const msg = inputEl.value.trim();
+    if (!msg) return;
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/boxes/records/${boxId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lock_message: msg })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      notify('✉️ Message envoyé à la box', 'success');
+    } catch(e) {
+      notify('Erreur envoi message : ' + e.message, 'error');
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Utilitaires
+  // ─────────────────────────────────────────────────────────────────
+  function setStatus(type, msg) {
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    dot.className = type === 'connected' ? 'connected' : type === 'error' ? 'error' : type === 'connecting' ? 'connecting' : '';
+    text.textContent = msg;
+  }
+
+  function notify(msg, type = 'success') {
+    const n = document.getElementById('notif');
+    n.textContent = msg;
+    n.className = 'show ' + type;
+    clearTimeout(n._t);
+    n._t = setTimeout(() => { n.className = ''; }, 3000);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+      return new Date(dateStr.replace(' ', 'T')).toLocaleString('fr-FR');
+    } catch { return dateStr; }
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
