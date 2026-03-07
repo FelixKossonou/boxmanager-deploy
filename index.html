@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BoxManager â Panel Admin</title>
+  <title>BoxManager — Panel Admin</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -191,7 +191,7 @@
     .box-meta { font-size: 0.78rem; color: #666; margin-bottom: 14px; }
     .box-meta span { display: inline-block; margin-right: 12px; }
 
-    /* ââ Commentaires multiples ââ */
+    /* ── Commentaires multiples ── */
     .comments-section { margin-bottom: 12px; }
     .comments-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
     .comment-entry {
@@ -224,7 +224,7 @@
     .badge-paused { background: #7b5ea722; color: #b09fda; border: 1px solid #7b5ea755; }
     .box-card.paused { border-color: #7b5ea755; background: #14121e; }
 
-    /* ââ Message de verrouillage ââ */
+    /* ── Message de verrouillage ── */
     .lock-msg-section { margin-bottom: 10px; }
     .lock-msg-label { font-size: 0.68rem; color: #7b5ea7; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
     .lock-msg-input {
@@ -278,20 +278,20 @@
 <body>
 
 <header>
-  <span>ð¦</span>
-  <h1>BoxManager â Panel Admin</h1>
+  <span>📦</span>
+  <h1>BoxManager — Panel Admin</h1>
 </header>
 
 <div id="status-bar">
   <span id="status-dot"></span>
-  <span id="status-text">Non connectÃ© â configurez PocketBase ci-dessous</span>
+  <span id="status-text">Non connecté — configurez PocketBase ci-dessous</span>
 </div>
 
 <div class="container">
 
   <!-- Config PocketBase -->
   <div id="config-panel">
-    <h2>ðï¸ Configuration PocketBase</h2>
+    <h2>🗄️ Configuration PocketBase</h2>
     <div class="config-grid">
       <div>
         <label>URL du serveur PocketBase</label>
@@ -299,13 +299,13 @@
         <div class="config-hint">
           Entrez l'adresse IP de votre PC suivi du port 8090.<br>
           Ex: <strong>https://votre-serveur.onrender.com</strong><br>
-          Pour trouver votre IP : Windows â cmd â <code>ipconfig</code> â "Adresse IPv4"
+          Pour trouver votre IP : Windows → cmd → <code>ipconfig</code> → "Adresse IPv4"
         </div>
       </div>
       <div style="display:flex; flex-direction:column; gap:10px; justify-content:flex-start; padding-top:24px;">
         <button class="btn btn-primary" id="btn-connect" onclick="connectPocketBase()">Connecter</button>
-        <button class="btn btn-ghost" id="btn-disconnect" onclick="disconnect()" style="display:none;">DÃ©connecter</button>
-        <button class="btn btn-ghost" onclick="saveConfig()">ð¾ Sauvegarder</button>
+        <button class="btn btn-ghost" id="btn-disconnect" onclick="disconnect()" style="display:none;">Déconnecter</button>
+        <button class="btn btn-ghost" onclick="saveConfig()">💾 Sauvegarder</button>
       </div>
     </div>
   </div>
@@ -313,29 +313,29 @@
   <!-- Stats -->
   <div id="stats-row">
     <div class="stat-card">
-      <div class="number" id="stat-total">â</div>
+      <div class="number" id="stat-total">—</div>
       <div class="label">Total boxes</div>
     </div>
     <div class="stat-card">
-      <div class="number" id="stat-online" style="color:#00e5a0">â</div>
+      <div class="number" id="stat-online" style="color:#00e5a0">—</div>
       <div class="label">En ligne</div>
     </div>
     <div class="stat-card">
-      <div class="number" id="stat-blocked" style="color:#ff4f4f">â</div>
-      <div class="label">BloquÃ©es</div>
+      <div class="number" id="stat-blocked" style="color:#ff4f4f">—</div>
+      <div class="label">Bloquées</div>
     </div>
     <div class="stat-card">
-      <div class="number" id="stat-free">â</div>
+      <div class="number" id="stat-free">—</div>
       <div class="label">Libres</div>
     </div>
   </div>
 
   <!-- Toolbar -->
   <div id="toolbar">
-    <input id="search" type="text" placeholder="ð Rechercher une box (ID, modÃ¨le, commentaire...)" oninput="filterBoxes()" />
-    <button class="btn btn-danger"  onclick="blockAll()"   id="btn-block-all"   disabled>ð Tout bloquer</button>
-    <button class="btn btn-success" onclick="unblockAll()" id="btn-unblock-all" disabled>ð Tout dÃ©bloquer</button>
-    <button class="btn btn-ghost"   onclick="loadBoxes()"  id="btn-refresh"     disabled>ð Actualiser</button>
+    <input id="search" type="text" placeholder="🔍 Rechercher une box (ID, modèle, commentaire...)" oninput="filterBoxes()" />
+    <button class="btn btn-danger"  onclick="blockAll()"   id="btn-block-all"   disabled>🔒 Tout bloquer</button>
+    <button class="btn btn-success" onclick="unblockAll()" id="btn-unblock-all" disabled>🔓 Tout débloquer</button>
+    <button class="btn btn-ghost"   onclick="loadBoxes()"  id="btn-refresh"     disabled>🔄 Actualiser</button>
   </div>
 
   <div class="section-title" id="boxes-title">Boxes</div>
@@ -343,7 +343,7 @@
   <!-- Boxes Grid -->
   <div id="boxes-grid">
     <div id="empty-state">
-      <div class="icon">ð¡</div>
+      <div class="icon">📡</div>
       <p>Connectez PocketBase pour voir vos boxes</p>
     </div>
   </div>
@@ -354,35 +354,35 @@
 <div id="notif"></div>
 
 <script>
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   // Intercepteur fetch : ajoute automatiquement le header ngrok
-  // (nÃ©cessaire pour bypasser l'interstitiel ngrok free tier)
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // (nécessaire pour bypasser l'interstitiel ngrok free tier)
+  // ─────────────────────────────────────────────────────────────────
   const _origFetch = window.fetch.bind(window);
   window.fetch = (url, options = {}) => {
     options.headers = Object.assign({ 'ngrok-skip-browser-warning': 'true' }, options.headers || {});
     return _origFetch(url, options);
   };
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  // Ãtat global
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
+  // État global
+  // ─────────────────────────────────────────────────────────────────
   let pbUrl        = '';
   let boxesData    = [];   // Tableau de records PocketBase
   let isConnected  = false;
   let sseSource    = null;
   let sseRetryTimer    = null;
   let statusRefreshTimer = null; // Timer re-rendu automatique (toutes les 10s)
-  let isUserTyping = false;      // True quand un champ de commentaire est actif â bloque tout renderBoxes()
+  let isUserTyping = false;      // True quand un champ de commentaire est actif → bloque tout renderBoxes()
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  // Initialisation : charger config sauvegardÃ©e
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
+  // Initialisation : charger config sauvegardée
+  // ─────────────────────────────────────────────────────────────────
   window.onload = () => {
     const cfg = JSON.parse(localStorage.getItem('bm_pb_config') || '{}');
     if (cfg.url) {
       document.getElementById('pb-url').value = cfg.url;
-      // Auto-connexion si une URL est sauvegardÃ©e
+      // Auto-connexion si une URL est sauvegardée
       connectPocketBase();
     }
   };
@@ -390,12 +390,12 @@
   function saveConfig() {
     const url = document.getElementById('pb-url').value.trim();
     localStorage.setItem('bm_pb_config', JSON.stringify({ url }));
-    notify('Configuration sauvegardÃ©e', 'success');
+    notify('Configuration sauvegardée', 'success');
   }
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   // Connexion PocketBase
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   async function connectPocketBase() {
     const url = document.getElementById('pb-url').value.trim().replace(/\/$/, '');
     if (!url) {
@@ -406,13 +406,13 @@
     setStatus('connecting', 'Connexion en cours...');
 
     try {
-      // Test de connexion : vÃ©rifier que PocketBase rÃ©pond
+      // Test de connexion : vérifier que PocketBase répond
       const res = await fetch(`${pbUrl}/api/collections/boxes/records?perPage=1`, { signal: AbortSignal.timeout(5000) });
-      if (!res.ok) throw new Error('RÃ©ponse HTTP ' + res.status);
+      if (!res.ok) throw new Error('Réponse HTTP ' + res.status);
 
-      // Connexion rÃ©ussie
+      // Connexion réussie
       isConnected = true;
-      setStatus('connected', 'ConnectÃ© Ã  PocketBase â ' + pbUrl);
+      setStatus('connected', 'Connecté à PocketBase — ' + pbUrl);
       document.getElementById('btn-connect').style.display    = 'none';
       document.getElementById('btn-disconnect').style.display = 'inline-block';
       document.getElementById('btn-block-all').disabled   = false;
@@ -424,7 +424,7 @@
       startStatusRefresh();
     } catch (e) {
       setStatus('error', 'Impossible de joindre PocketBase : ' + e.message);
-      notify('Connexion Ã©chouÃ©e â vÃ©rifiez l\'URL et que PocketBase est lancÃ©', 'error');
+      notify('Connexion échouée — vérifiez l\'URL et que PocketBase est lancé', 'error');
       isConnected = false;
     }
   }
@@ -435,7 +435,7 @@
     boxesData = [];
     stopSSE();
     if (statusRefreshTimer) { clearInterval(statusRefreshTimer); statusRefreshTimer = null; }
-    setStatus('disconnected', 'Non connectÃ©');
+    setStatus('disconnected', 'Non connecté');
     document.getElementById('btn-connect').style.display    = 'inline-block';
     document.getElementById('btn-disconnect').style.display = 'none';
     document.getElementById('btn-block-all').disabled   = true;
@@ -445,9 +445,9 @@
     updateStats();
   }
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   // Chargement des boxes depuis PocketBase
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   async function loadBoxes() {
     if (!isConnected) return;
     try {
@@ -455,7 +455,7 @@
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       boxesData = data.items || [];
-      // Ne pas recrÃ©er le DOM si l'utilisateur est en train de taper un commentaire
+      // Ne pas recréer le DOM si l'utilisateur est en train de taper un commentaire
       if (!isUserTyping) renderBoxes();
       updateStats();
     } catch (e) {
@@ -463,20 +463,20 @@
     }
   }
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  // SSE temps rÃ©el â PocketBase notifie le panel Ã  chaque changement
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
+  // SSE temps réel — PocketBase notifie le panel à chaque changement
+  // ─────────────────────────────────────────────────────────────────
   function startSSE() {
     stopSSE();
     if (!isConnected || !pbUrl) return;
 
     sseSource = new EventSource(`${pbUrl}/api/realtime`);
 
-    // Premier Ã©vÃ©nement PocketBase : contient le clientId pour s'abonner
+    // Premier événement PocketBase : contient le clientId pour s'abonner
     sseSource.addEventListener('PB_CONNECT', (e) => {
       try {
         const { clientId } = JSON.parse(e.data);
-        // S'abonner Ã  tous les changements de la collection "boxes"
+        // S'abonner à tous les changements de la collection "boxes"
         fetch(`${pbUrl}/api/realtime`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -487,14 +487,14 @@
       }
     });
 
-    // Changement dÃ©tectÃ© dans la collection boxes â recharger
+    // Changement détecté dans la collection boxes → recharger
     sseSource.addEventListener('boxes', () => {
       loadBoxes();
     });
 
     sseSource.onerror = () => {
       if (isConnected) {
-        setStatus('connecting', 'SSE dÃ©connectÃ© â reconnexion dans 5s...');
+        setStatus('connecting', 'SSE déconnecté — reconnexion dans 5s...');
         stopSSE();
         sseRetryTimer = setTimeout(() => {
           if (isConnected) startSSE();
@@ -503,14 +503,14 @@
     };
 
     sseSource.onopen = () => {
-      if (isConnected) setStatus('connected', 'ConnectÃ© Ã  PocketBase â ' + pbUrl);
+      if (isConnected) setStatus('connected', 'Connecté à PocketBase — ' + pbUrl);
     };
   }
 
   /**
-   * Lance un timer qui recalcule et rÃ©affiche les statuts en ligne/hors ligne
-   * toutes les 10 secondes â sans attendre un nouveau heartbeat ou un Ã©vÃ©nement SSE.
-   * Essentiel pour montrer "Hors ligne" rapidement quand un cÃ¢ble est dÃ©branchÃ©.
+   * Lance un timer qui recalcule et réaffiche les statuts en ligne/hors ligne
+   * toutes les 10 secondes — sans attendre un nouveau heartbeat ou un événement SSE.
+   * Essentiel pour montrer "Hors ligne" rapidement quand un câble est débranché.
    */
   function startStatusRefresh() {
     if (statusRefreshTimer) clearInterval(statusRefreshTimer);
@@ -524,9 +524,9 @@
     if (sseSource)     { sseSource.close(); sseSource = null; }
   }
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   // Rendu des cartes de boxes
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   function renderBoxes() {
     const grid   = document.getElementById('boxes-grid');
     const search = document.getElementById('search').value.toLowerCase();
@@ -547,13 +547,13 @@
 
     if (entries.length === 0) {
       grid.innerHTML = `<div id="empty-state">
-        <div class="icon">${isConnected ? 'ð­' : 'ð¡'}</div>
-        <p>${isConnected ? 'Aucune box trouvÃ©e' : 'Connectez PocketBase pour voir vos boxes'}</p>
+        <div class="icon">${isConnected ? '📭' : '📡'}</div>
+        <p>${isConnected ? 'Aucune box trouvée' : 'Connectez PocketBase pour voir vos boxes'}</p>
       </div>`;
       return;
     }
 
-    // Tri : bloquÃ©es en premier, puis en ligne, puis hors ligne
+    // Tri : bloquées en premier, puis en ligne, puis hors ligne
     entries.sort((a, b) => {
       if (a.blocked !== b.blocked) return (b.blocked ? 1 : 0) - (a.blocked ? 1 : 0);
       if (a.online  !== b.online)  return (b.online  ? 1 : 0) - (a.online  ? 1 : 0);
@@ -565,29 +565,29 @@
       const isPaused   = box.paused  === true;
       const label      = box.label   || box.deviceId || box.id;
       const comments   = parseComments(box.comment);
-      const lastSeen   = box.updated ? formatDate(box.updated) : 'â';
+      const lastSeen   = box.updated ? formatDate(box.updated) : '—';
       const shortId   = (box.deviceId || box.id || '').substring(0, 12);
 
-      // DÃ©tection offline intelligente via "lastSeen" :
-      // Ce champ est mis Ã  jour UNIQUEMENT par les heartbeats (toutes les 5s),
-      // contrairement Ã  "updated" qui change aussi lors d'un blocage/commentaire.
-      // Si aucun heartbeat depuis > 12s (= 2+ heartbeats manquÃ©s) â hors ligne.
+      // Détection offline intelligente via "lastSeen" :
+      // Ce champ est mis à jour UNIQUEMENT par les heartbeats (toutes les 5s),
+      // contrairement à "updated" qui change aussi lors d'un blocage/commentaire.
+      // Si aucun heartbeat depuis > 12s (= 2+ heartbeats manqués) → hors ligne.
       const lastHb      = box.lastSeen || box.updated; // fallback sur updated si lastSeen absent
       const lastUpdate  = lastHb ? new Date(lastHb.replace(' ', 'T')) : null;
       const secsAgo     = lastUpdate ? (Date.now() - lastUpdate.getTime()) / 1000 : 999;
       const isReallyOn  = box.online === true && secsAgo < 12;
-      const isStale     = box.online === true && secsAgo >= 12; // marquÃ© online mais injoignable
+      const isStale     = box.online === true && secsAgo >= 12; // marqué online mais injoignable
 
-      // Badge online/offline normal (indÃ©pendant de la pause)
+      // Badge online/offline normal (indépendant de la pause)
       const onlineBadge = isReallyOn
-        ? `<span class="badge badge-online">â En ligne</span>`
+        ? `<span class="badge badge-online">● En ligne</span>`
         : isStale
-          ? `<span class="badge badge-stale">â  Non joignable</span>`
-          : `<span class="badge badge-offline">â Hors ligne</span>`;
+          ? `<span class="badge badge-stale">⚠ Non joignable</span>`
+          : `<span class="badge badge-offline">○ Hors ligne</span>`;
 
-      // Badge pause affichÃ© SOUS le badge online â disparaÃ®t quand actif
+      // Badge pause affiché SOUS le badge online — disparaît quand actif
       const pauseBadge = isPaused
-        ? `<span class="badge badge-paused">â¸ En pause</span>`
+        ? `<span class="badge badge-paused">⏸ En pause</span>`
         : '';
 
       return `
@@ -595,24 +595,24 @@
           <div class="box-header">
             <div>
               <div class="box-model">${esc(label)}</div>
-              <div class="box-brand">${esc(box.brand || '')} Â· ID: ${esc(shortId)}...</div>
+              <div class="box-brand">${esc(box.brand || '')} · ID: ${esc(shortId)}...</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
               ${onlineBadge}
               ${pauseBadge}
               <span class="badge ${isBlocked ? 'badge-blocked' : 'badge-free'}">
-                ${isBlocked ? 'ð BloquÃ©e' : 'ð Libre'}
+                ${isBlocked ? '🔒 Bloquée' : '🔓 Libre'}
               </span>
             </div>
           </div>
           <div class="box-meta">
-            <span>ð± ${esc(box.model || 'â')}</span>
-            <span>ð ${lastSeen}</span>
-            ${box.macAddress ? `<span title="Adresse MAC">ð ${esc(box.macAddress)}</span>` : ''}
+            <span>📱 ${esc(box.model || '—')}</span>
+            <span>🕐 ${lastSeen}</span>
+            ${box.macAddress ? `<span title="Adresse MAC">🔌 ${esc(box.macAddress)}</span>` : ''}
           </div>
           <div class="box-meta" style="margin-top:-8px;word-break:break-all;">
             <span title="ID unique de l'appareil" style="font-family:monospace;font-size:0.72rem;color:#555;">
-              ID: ${esc(box.deviceId || box.id || 'â')}
+              ID: ${esc(box.deviceId || box.id || '—')}
             </span>
           </div>
           <div class="comments-section">
@@ -620,42 +620,42 @@
               ${renderCommentEntries(box.id, comments)}
             </div>
             <input type="text" class="comment-input" id="new-comment-${box.id}"
-              placeholder="Ajouter un commentaireâ¦ (EntrÃ©e pour valider)"
+              placeholder="Ajouter un commentaire… (Entrée pour valider)"
               onkeydown="if(event.key==='Enter'&&this.value.trim())addComment('${box.id}',this)">
           </div>
           <div class="lock-msg-section">
-            <div class="lock-msg-label">âï¸ Envoyer un message</div>
+            <div class="lock-msg-label">✉️ Envoyer un message</div>
             <input type="text" class="lock-msg-input" id="lock-msg-${box.id}"
-              placeholder="Tapez un message et appuyez sur EntrÃ©eâ¦"
+              placeholder="Tapez un message et appuyez sur Entrée…"
               onkeydown="if(event.key==='Enter'&&this.value.trim()){saveLockMessage('${box.id}',this);this.value='';}">
           </div>
           <div class="box-actions">
             <button class="btn ${isBlocked ? 'btn-ghost' : 'btn-danger'}"
               onclick="setBlock('${box.id}', true)" ${isBlocked || isPaused ? 'disabled' : ''}
               title="${isPaused ? 'Reprenez la box avant de la bloquer' : ''}">
-              ð Bloquer
+              🔒 Bloquer
             </button>
             <button class="btn ${!isBlocked ? 'btn-ghost' : 'btn-success'}"
               onclick="setBlock('${box.id}', false)" ${!isBlocked || isPaused ? 'disabled' : ''}
-              title="${isPaused ? 'Reprenez la box avant de la dÃ©bloquer' : ''}">
-              ð DÃ©bloquer
+              title="${isPaused ? 'Reprenez la box avant de la débloquer' : ''}">
+              🔓 Débloquer
             </button>
             <button class="btn btn-ghost" id="pause-btn-${box.id}"
               onclick="togglePause('${box.id}', ${isPaused})"
-              title="${isPaused ? 'Reprendre les heartbeats' : 'Suspendre les heartbeats (Ã©conomise le tunnel)'}">
-              ${isPaused ? 'â¶ï¸' : 'â¸ï¸'}
+              title="${isPaused ? 'Reprendre les heartbeats' : 'Suspendre les heartbeats (économise le tunnel)'}">
+              ${isPaused ? '▶️' : '⏸️'}
             </button>
             <button class="btn btn-ghost" id="reboot-btn-${box.id}"
               onclick="rebootBox('${box.id}', '${esc(label)}', this)"
               ${isBlocked ? 'disabled' : ''}
-              title="${isBlocked ? 'DÃ©verrouillez la box avant de la redÃ©marrer' : 'RedÃ©marrer la box Ã  distance'}">
-              ð
+              title="${isBlocked ? 'Déverrouillez la box avant de la redémarrer' : 'Redémarrer la box à distance'}">
+              🔁
             </button>
             <button class="btn btn-delete"
               onclick="deleteBox('${box.id}', '${esc(label)}', ${isBlocked}, ${isPaused})"
               ${isBlocked || isPaused ? 'disabled' : ''}
-              title="${isBlocked ? 'DÃ©verrouillez la box avant de la supprimer' : isPaused ? 'Reprenez la box avant de la supprimer' : 'Supprimer'}">
-              ðï¸
+              title="${isBlocked ? 'Déverrouillez la box avant de la supprimer' : isPaused ? 'Reprenez la box avant de la supprimer' : 'Supprimer'}">
+              🗑️
             </button>
           </div>
         </div>`;
@@ -666,9 +666,9 @@
 
   /**
    * Attache les listeners focus/blur sur tous les champs de commentaire.
-   *   focus â suspend le timer de rafraÃ®chissement (plus aucun renderBoxes pendant la frappe)
-   *   blur  â relance le timer normalement
-   * AppelÃ© aprÃ¨s chaque renderBoxes() pour recapturer les nouveaux Ã©lÃ©ments DOM.
+   *   focus → suspend le timer de rafraîchissement (plus aucun renderBoxes pendant la frappe)
+   *   blur  → relance le timer normalement
+   * Appelé après chaque renderBoxes() pour recapturer les nouveaux éléments DOM.
    */
   function attachCommentListeners() {
     document.querySelectorAll('.comment-input, .lock-msg-input').forEach(el => {
@@ -682,7 +682,7 @@
       });
       el.addEventListener('blur', () => {
         isUserTyping = false;
-        // Rattraper les mises Ã  jour manquÃ©es pendant la frappe, puis relancer le timer
+        // Rattraper les mises à jour manquées pendant la frappe, puis relancer le timer
         renderBoxes();
         updateStats();
         startStatusRefresh();
@@ -700,15 +700,15 @@
       return secsAgo < 12;
     }).length;
     const blocked = boxesData.filter(b => b.blocked).length;
-    document.getElementById('stat-total').textContent   = total   || 'â';
-    document.getElementById('stat-online').textContent  = online  || (total ? '0' : 'â');
-    document.getElementById('stat-blocked').textContent = blocked || (total ? '0' : 'â');
-    document.getElementById('stat-free').textContent    = total ? (total - blocked) : 'â';
+    document.getElementById('stat-total').textContent   = total   || '—';
+    document.getElementById('stat-online').textContent  = online  || (total ? '0' : '—');
+    document.getElementById('stat-blocked').textContent = blocked || (total ? '0' : '—');
+    document.getElementById('stat-free').textContent    = total ? (total - blocked) : '—';
   }
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   // Actions sur les boxes
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   async function setBlock(recordId, blocked) {
     if (!isConnected) return;
     try {
@@ -718,27 +718,27 @@
         body: JSON.stringify({ blocked })
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      notify(blocked ? 'ð Box bloquÃ©e' : 'ð Box dÃ©bloquÃ©e', blocked ? 'error' : 'success');
+      notify(blocked ? '🔒 Box bloquée' : '🔓 Box débloquée', blocked ? 'error' : 'success');
       await loadBoxes();
     } catch (e) {
       notify('Erreur : ' + e.message, 'error');
     }
   }
 
-  // ââ SystÃ¨me de commentaires multiples ââââââââââââââââââââââââââââââ
+  // ── Système de commentaires multiples ──────────────────────────────
 
-  /** Parse le champ comment (JSON ou texte legacy) â tableau d'entrÃ©es */
+  /** Parse le champ comment (JSON ou texte legacy) → tableau d'entrées */
   function parseComments(raw) {
     if (!raw) return [];
     try {
       const arr = JSON.parse(raw);
       if (Array.isArray(arr)) return arr;
     } catch(e) {}
-    // RÃ©trocompatibilitÃ© : ancien commentaire en texte simple
+    // Rétrocompatibilité : ancien commentaire en texte simple
     return [{ id: '0', text: raw, date: '' }];
   }
 
-  /** GÃ©nÃ¨re le HTML des entrÃ©es de commentaires pour une box */
+  /** Génère le HTML des entrées de commentaires pour une box */
   function renderCommentEntries(boxId, comments) {
     if (!comments.length) return '';
     return comments.map(c => `
@@ -748,13 +748,13 @@
           ${c.date ? `<div class="comment-entry-date">${esc(c.date)}</div>` : ''}
         </div>
         <div class="comment-entry-btns">
-          <button onclick="editComment('${boxId}','${c.id}')" title="Modifier">âï¸</button>
-          <button onclick="deleteComment('${boxId}','${c.id}')" title="Supprimer">ðï¸</button>
+          <button onclick="editComment('${boxId}','${c.id}')" title="Modifier">✏️</button>
+          <button onclick="deleteComment('${boxId}','${c.id}')" title="Supprimer">🗑️</button>
         </div>
       </div>`).join('');
   }
 
-  /** Ajoute un nouveau commentaire (appelÃ© sur touche EntrÃ©e) */
+  /** Ajoute un nouveau commentaire (appelé sur touche Entrée) */
   async function addComment(boxId, inputEl) {
     const text = inputEl.value.trim();
     if (!text || !isConnected) return;
@@ -777,7 +777,7 @@
     const c = comments.find(c => c.id === commentId);
     if (!c) return;
     const newText = prompt('Modifier le commentaire :', c.text);
-    if (newText === null) return; // annulÃ©
+    if (newText === null) return; // annulé
     if (!newText.trim()) { await deleteComment(boxId, commentId); return; }
     c.text = newText.trim();
     await saveComments(boxId, comments);
@@ -791,7 +791,7 @@
     await saveComments(boxId, comments);
   }
 
-  /** Sauvegarde la liste de commentaires dans PocketBase et met Ã  jour le DOM */
+  /** Sauvegarde la liste de commentaires dans PocketBase et met à jour le DOM */
   async function saveComments(boxId, comments) {
     if (!isConnected) return;
     const box = boxesData.find(b => b.id === boxId);
@@ -803,9 +803,9 @@
         body: JSON.stringify({ comment: JSON.stringify(comments) })
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      // Mettre Ã  jour les donnÃ©es locales
+      // Mettre à jour les données locales
       box.comment = JSON.stringify(comments);
-      // RafraÃ®chir uniquement la liste des commentaires (pas tout le DOM)
+      // Rafraîchir uniquement la liste des commentaires (pas tout le DOM)
       const listEl = document.getElementById('clist-' + boxId);
       if (listEl) listEl.innerHTML = renderCommentEntries(boxId, comments);
     } catch(e) {
@@ -814,9 +814,9 @@
   }
 
   /**
-   * Bascule l'Ã©tat pause/reprise d'une box.
-   * Quand paused=true â la box arrÃªte d'envoyer ses heartbeats (SSE reste actif).
-   * Utile pour Ã©conomiser le quota ngrok free (40 req/min) quand beaucoup de boxes sont connectÃ©es.
+   * Bascule l'état pause/reprise d'une box.
+   * Quand paused=true → la box arrête d'envoyer ses heartbeats (SSE reste actif).
+   * Utile pour économiser le quota ngrok free (40 req/min) quand beaucoup de boxes sont connectées.
    */
   async function togglePause(boxId, currentlyPaused) {
     if (!isConnected) return;
@@ -827,10 +827,10 @@
         body: JSON.stringify({ paused: !currentlyPaused })
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      // Mise Ã  jour locale immÃ©diate sans attendre le SSE
+      // Mise à jour locale immédiate sans attendre le SSE
       const box = boxesData.find(b => b.id === boxId);
       if (box) box.paused = !currentlyPaused;
-      notify(currentlyPaused ? 'â¶ï¸ Box reprise' : 'â¸ï¸ Box mise en pause', 'success');
+      notify(currentlyPaused ? '▶️ Box reprise' : '⏸️ Box mise en pause', 'success');
       if (!isUserTyping) renderBoxes();
     } catch(e) {
       notify('Erreur pause/reprise : ' + e.message, 'error');
@@ -838,14 +838,14 @@
   }
 
   /**
-   * Envoie une commande de redÃ©marrage Ã  la box via PocketBase (champ reboot=true).
-   * BoxService dÃ©tecte le changement via SSE et exÃ©cute le reboot sur l'appareil.
+   * Envoie une commande de redémarrage à la box via PocketBase (champ reboot=true).
+   * BoxService détecte le changement via SSE et exécute le reboot sur l'appareil.
    */
   async function rebootBox(boxId, label, btn) {
     if (!isConnected) return;
-    if (!confirm(`RedÃ©marrer la box "${label}" ?\n\nL'appareil va redÃ©marrer dans quelques secondes.`)) return;
+    if (!confirm(`Redémarrer la box "${label}" ?\n\nL'appareil va redémarrer dans quelques secondes.`)) return;
     const orig = btn.textContent;
-    btn.textContent = 'â³';
+    btn.textContent = '⏳';
     btn.disabled = true;
     try {
       const res = await fetch(`${pbUrl}/api/collections/boxes/records/${boxId}`, {
@@ -854,11 +854,11 @@
         body: JSON.stringify({ reboot: true })
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      notify('ð Commande de redÃ©marrage envoyÃ©e', 'success');
+      notify('🔁 Commande de redémarrage envoyée', 'success');
     } catch(e) {
-      notify('Erreur redÃ©marrage : ' + e.message, 'error');
+      notify('Erreur redémarrage : ' + e.message, 'error');
     }
-    // RÃ©activer le bouton aprÃ¨s 15s (temps suffisant pour que la box redÃ©marre)
+    // Réactiver le bouton après 15s (temps suffisant pour que la box redémarre)
     setTimeout(() => {
       btn.textContent = orig;
       btn.disabled = false;
@@ -877,7 +877,7 @@
           body: JSON.stringify({ blocked: true })
         })
       ));
-      notify('Toutes les boxes bloquÃ©es', 'error');
+      notify('Toutes les boxes bloquées', 'error');
       await loadBoxes();
     } catch (e) {
       notify('Erreur : ' + e.message, 'error');
@@ -888,7 +888,7 @@
 
   async function unblockAll() {
     if (!isConnected) return;
-    if (!confirm('DÃ©bloquer TOUTES les boxes ?')) return;
+    if (!confirm('Débloquer TOUTES les boxes ?')) return;
     document.getElementById('btn-unblock-all').disabled = true;
     try {
       await Promise.all(boxesData.map(box =>
@@ -898,7 +898,7 @@
           body: JSON.stringify({ blocked: false })
         })
       ));
-      notify('Toutes les boxes dÃ©bloquÃ©es', 'success');
+      notify('Toutes les boxes débloquées', 'success');
       await loadBoxes();
     } catch (e) {
       notify('Erreur : ' + e.message, 'error');
@@ -909,23 +909,23 @@
 
   async function deleteBox(recordId, label, isBlocked, isPaused) {
     if (!isConnected) return;
-    // SÃ©curitÃ© : impossible de supprimer une box verrouillÃ©e
+    // Sécurité : impossible de supprimer une box verrouillée
     if (isBlocked) {
-      notify(`ð Impossible de supprimer "${label}" : dÃ©verrouillez-la d'abord.`, 'error');
+      notify(`🔒 Impossible de supprimer "${label}" : déverrouillez-la d'abord.`, 'error');
       return;
     }
-    // SÃ©curitÃ© : impossible de supprimer une box en pause
+    // Sécurité : impossible de supprimer une box en pause
     if (isPaused) {
-      notify(`â¸ï¸ Impossible de supprimer "${label}" : reprenez-la d'abord.`, 'error');
+      notify(`⏸️ Impossible de supprimer "${label}" : reprenez-la d'abord.`, 'error');
       return;
     }
-    if (!confirm(`Supprimer dÃ©finitivement la box "${label}" du panel ?\n\nCela ne dÃ©sinstalle pas l'app sur l'appareil.`)) return;
+    if (!confirm(`Supprimer définitivement la box "${label}" du panel ?\n\nCela ne désinstalle pas l'app sur l'appareil.`)) return;
     try {
       const res = await fetch(`${pbUrl}/api/collections/boxes/records/${recordId}`, {
         method: 'DELETE'
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      notify(`ðï¸ Box "${label}" supprimÃ©e`, 'success');
+      notify(`🗑️ Box "${label}" supprimée`, 'success');
       await loadBoxes();
     } catch (e) {
       notify('Erreur suppression : ' + e.message, 'error');
@@ -934,11 +934,11 @@
 
   function filterBoxes() { renderBoxes(); }
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  // Message envoyÃ© Ã  la box (popup 20 secondes sur l'Ã©cran)
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
+  // Message envoyé à la box (popup 20 secondes sur l'écran)
+  // ─────────────────────────────────────────────────────────────────
 
-  /** Envoie le message dans lock_message â popup 20s sur l'Ã©cran de la box */
+  /** Envoie le message dans lock_message → popup 20s sur l'écran de la box */
   async function saveLockMessage(boxId, inputEl) {
     if (!isConnected) return;
     const msg = inputEl.value.trim();
@@ -950,15 +950,15 @@
         body: JSON.stringify({ lock_message: msg })
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      notify('âï¸ Message envoyÃ© Ã  la box', 'success');
+      notify('✉️ Message envoyé à la box', 'success');
     } catch(e) {
       notify('Erreur envoi message : ' + e.message, 'error');
     }
   }
 
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   // Utilitaires
-  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ─────────────────────────────────────────────────────────────────
   function setStatus(type, msg) {
     const dot  = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
@@ -975,7 +975,7 @@
   }
 
   function formatDate(dateStr) {
-    if (!dateStr) return 'â';
+    if (!dateStr) return '—';
     try {
       return new Date(dateStr.replace(' ', 'T')).toLocaleString('fr-FR');
     } catch { return dateStr; }
