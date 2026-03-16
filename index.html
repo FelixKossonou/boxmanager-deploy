@@ -595,7 +595,7 @@
           <div class="box-header">
             <div>
               <div class="box-model">${esc(label)}</div>
-              <div class="box-brand">${esc(box.brand || '')} · ID: ${esc(shortId)}...</div>
+              <div class="box-brand">${esc(box.brand || '')}</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
               ${onlineBadge}
@@ -605,16 +605,16 @@
               </span>
             </div>
           </div>
-          <div class="box-meta">
-            <span>📱 ${esc(box.model || '—')}</span>
+          <div style="margin:10px 0 6px 0;">
+            <span style="font-weight:700;font-size:1.05rem;color:#e0e0e0;letter-spacing:0.5px;">📺 ${esc(box.model || '—')}</span>
+          </div>
+          <div style="margin-bottom:12px;padding:7px 12px;background:#0d1f17;border:2px solid #00ff88;border-radius:8px;display:inline-block;">
+            <span style="font-family:monospace;font-size:1rem;font-weight:700;color:#00ff88;letter-spacing:1.5px;">${box.macAddress ? '📡 ' + esc(box.macAddress) : '<span style=\"color:#ff5555\">📡 MAC non disponible</span>'}</span>
+          </div>
+          <div class="box-meta" style="margin-top:4px;">
             <span>🕐 ${lastSeen}</span>
-            ${box.macAddress ? `<span title="Adresse MAC">🔌 ${esc(box.macAddress)}</span>` : ''}
           </div>
-          <div class="box-meta" style="margin-top:-8px;word-break:break-all;">
-            <span title="ID unique de l'appareil" style="font-family:monospace;font-size:0.72rem;color:#555;">
-              ID: ${esc(box.deviceId || box.id || '—')}
-            </span>
-          </div>
+
           <div class="comments-section">
             <div class="comments-list" id="clist-${box.id}">
               ${renderCommentEntries(box.id, comments)}
