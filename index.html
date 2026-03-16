@@ -49,6 +49,8 @@
   .header-logo { font-size: 28px; }
   .header h1 { font-size: 1.3rem; font-weight: 700; color: var(--green); }
   .header-status { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--text2); }
+  .logout-btn { background: none; border: 1px solid var(--border); color: var(--text2); border-radius: 8px; padding: 6px 12px; font-size: .8rem; cursor: pointer; transition: all .2s; }
+  .logout-btn:hover { border-color: var(--red); color: var(--red); }
   .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
   .status-dot.on { background: var(--green); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
@@ -169,6 +171,7 @@
     <div class="status-dot" id="statusDot"></div>
     <span id="statusText">Connexion...</span>
   </div>
+  <button class="logout-btn" onclick="logout()">&#x1F511; D&#xe9;connexion</button>
 </div>
 
 <div class="stats">
@@ -496,6 +499,14 @@ function startAutoRefresh() {
 async function init() {
   try { await loadBoxes(); startAutoRefresh(); }
   catch(e) { setConnected(false); }
+}
+
+function logout() {
+  sessionStorage.removeItem('bm_auth');
+  if (refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('passwordInput').value = '';
 }
 
 if (sessionStorage.getItem('bm_auth') === '1') init();
