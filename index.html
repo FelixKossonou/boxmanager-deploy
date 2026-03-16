@@ -39,6 +39,10 @@
   }
   .login-btn:hover { opacity: .85; }
   .login-error { color: var(--red); font-size: .85rem; margin-top: 12px; display: none; }
+  .input-wrap { position: relative; margin-bottom: 14px; }
+  .input-wrap .login-input { margin-bottom: 0; padding-right: 44px; }
+  .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--text2); padding: 0; line-height: 1; }
+  .eye-btn:hover { color: var(--text); }
 
   /* ── Header ── */
   .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
@@ -144,9 +148,12 @@
     <div class="login-logo">&#x1F4E6;</div>
     <h2>BoxManager</h2>
     <p>Panneau d'administration</p>
-    <input type="password" class="login-input" id="passwordInput"
-           placeholder="Mot de passe..."
-           onkeydown="if(event.key==='Enter') checkPassword()">
+    <div class="input-wrap">
+      <input type="password" class="login-input" id="passwordInput"
+             placeholder="Mot de passe..."
+             onkeydown="if(event.key==='Enter') checkPassword()">
+      <button class="eye-btn" type="button" onclick="togglePwd()" id="eyeBtn">&#x1F441;&#xFE0F;</button>
+    </div>
     <button class="login-btn" onclick="checkPassword()">Se connecter</button>
     <p class="login-error" id="loginError">&#x274C; Mot de passe incorrect</p>
   </div>
@@ -218,11 +225,23 @@
 <script>
 // ══ AUTH ══════════════════════════════════════════════════════════════
 // Hash SHA-256 de "BoxAdmin@Felix"
-const PASS_HASH = 'a3f8c2d71e4b69058af17cd290e3b56a1f84d72c9e05b38146ca7f0d92e5813a';
+const PASS_HASH = 'ccd519bb6954404cd8bf5916a4d6c20fc2485202e4dd084314b1a45483959939';
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function togglePwd() {
+  var inp = document.getElementById('passwordInput');
+  var btn = document.getElementById('eyeBtn');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = '\uD83D\uDE48'; // masquer
+  } else {
+    inp.type = 'password';
+    btn.innerHTML = '&#x1F441;&#xFE0F;'; // voir
+  }
 }
 
 async function checkPassword() {
