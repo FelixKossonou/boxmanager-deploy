@@ -432,7 +432,7 @@ async function sendMessage() {
 
 async function saveComment() {
   var t = document.getElementById('commentText').value.trim();
-  await patchBox(activeId, { comment: t });
+  await patchBox(activeId, { comment: t || null });
   closeModal('commentModal');
   showToast('Note sauvegard\u00e9e');
   loadBoxes();
