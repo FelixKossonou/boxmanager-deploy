@@ -445,10 +445,12 @@ function confirmDelete(id, label) {
   var online = box && isOnline(box);
   document.getElementById('confirmTitle').textContent = '\uD83D\uDDD1\uFE0F Supprimer la box';
   document.getElementById('confirmText').innerHTML =
-    '<strong style="color:var(--red)">\u26A0\uFE0F Cette action est irr\u00e9versible.</strong><br><br>' +
+    '<strong style="color:var(--yellow)">\u26A0\uFE0F Confirmer la suppression</strong><br><br>' +
     'La box <strong>"' + label + '"</strong> sera :<br>' +
     '\u2022 Lib\u00e9r\u00e9e de toutes les restrictions<br>' +
-    '\u2022 R\u00e9initialis\u00e9e en mode usine (BoxManager supprim\u00e9)<br><br>' +
+    '\u2022 D\u00e9connect\u00e9e du panel (plus de trafic)<br>' +
+    '\u2022 Red\u00e9marr\u00e9e proprement<br>' +
+    '\u2022 (BoxManager d\u00e9sinstallable manuellement apr\u00e8s)<br><br>' +
     (online
       ? '<span style="color:var(--green)">\u2705 Box en ligne &mdash; lib\u00e9ration dans les 5 secondes.</span>'
       : '<span style="color:var(--yellow)">\u26A0\uFE0F Box hors ligne &mdash; lib\u00e9ration au prochain d\u00e9marrage.</span>');
