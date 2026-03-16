@@ -382,7 +382,7 @@ function buildCard(b) {
     (!online?' disabled title="Box hors ligne"':'') + '>&#x1F4AC; Message</button>';
 
   // Note : toujours actif
-  var btnNote = '<button class="btn btn-gray" onclick="openCommentModal(\''+did+'\',\''+ea(b.comment||'')+'\')">&#x1F4DD; Note</button>';
+  var btnNote = '<button class="btn btn-gray" data-cmt="'+esc(b.comment||'')+'" onclick="openCommentModal(\''+did+'\',this.dataset.cmt)">&#x1F4DD; Note</button>';
 
   // Supprimer : gris&#xe9; si box bloqu&#xe9;e OU en pause
   var btnDel = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"' +
