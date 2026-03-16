@@ -358,9 +358,10 @@ function buildCard(b) {
   // ── Boutons avec grisement ──────────────────────────────────────────
   // Bloquer : gris&#xe9; si hors ligne ; cach&#xe9; si d&#xe9;j&#xe0; bloqu&#xe9;
   // D&#xe9;bloquer : toujours actif si bloqu&#xe9;
+  // Bloquer : gris&#xe9; si hors ligne OU en pause
   var btnBlock = blocked
     ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')">&#x1F513; D&#xe9;bloquer</button>'
-    : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"' + (!online?' disabled title="Box hors ligne"':'') + '>&#x1F512; Bloquer</button>';
+    : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"' + ((!online||paused)?' disabled title="'+(paused?'Reprendre avant':'Box hors ligne')+'"':'') + '>&#x1F512; Bloquer</button>';
 
   // Pause : gris&#xe9; si box bloqu&#xe9;e OU hors ligne
   // Reprendre : toujours actif si en pause
@@ -368,10 +369,10 @@ function buildCard(b) {
     ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')">&#x25B6; Reprendre</button>'
     : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"' + ((!online||blocked)?' disabled title="'+(blocked?'D\u00e9bloquer avant':'Box hors ligne')+'"':'') + '>&#x23F8; Pause</button>';
 
-  // Reboot : gris&#xe9; si hors ligne OU reboot d&#xe9;j&#xe0; en attente
+  // Reboot : gris&#xe9; si hors ligne OU reboot en attente OU en pause
   var btnReboot = rebooting
     ? '<button class="btn" disabled>&#x23F3; Reboot...</button>'
-    : '<button class="btn btn-blue" onclick="rebootBox(\''+did+'\')"' + (!online?' disabled title="Box hors ligne"':'') + '>&#x1F504; Reboot</button>';
+    : '<button class="btn btn-blue" onclick="rebootBox(\''+did+'\')"' + ((!online||paused)?' disabled title="'+(paused?'Reprendre avant':'Box hors ligne')+'"':'') + '>&#x1F504; Reboot</button>';
 
   // Message : gris&#xe9; si hors ligne
   var btnMsg = '<button class="btn btn-gray" onclick="openMsgModal(\''+did+'\')"' +
