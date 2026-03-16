@@ -14,6 +14,32 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
+  /* ── Login Screen ── */
+  #loginScreen {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  .login-box {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px 36px; width: 100%; max-width: 380px; text-align: center;
+  }
+  .login-logo { font-size: 48px; margin-bottom: 12px; }
+  .login-box h2 { font-size: 1.5rem; color: var(--green); margin-bottom: 6px; }
+  .login-box p { color: var(--text2); font-size: .9rem; margin-bottom: 28px; }
+  .login-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 1rem;
+    outline: none; margin-bottom: 14px; text-align: center; letter-spacing: 2px;
+  }
+  .login-input:focus { border-color: var(--green); }
+  .login-btn {
+    width: 100%; background: var(--green); color: #000; border: none;
+    border-radius: 10px; padding: 12px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity .2s;
+  }
+  .login-btn:hover { opacity: .85; }
+  .login-error { color: var(--red); font-size: .85rem; margin-top: 12px; display: none; }
+
   /* ── Header ── */
   .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
   .header-logo { font-size: 28px; }
@@ -34,12 +60,17 @@
   .search-box { flex: 1; min-width: 200px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-size: .9rem; outline: none; }
   .search-box:focus { border-color: var(--green); }
   .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: .85rem; font-weight: 600; transition: opacity .2s; }
-  .btn:hover { opacity: .85; }
-  .btn-green { background: var(--green); color: #000; }
-  .btn-red   { background: var(--red); color: #fff; }
-  .btn-blue  { background: var(--blue); color: #000; }
-  .btn-gray  { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
-  .btn-yellow{ background: var(--yellow); color: #000; }
+  .btn:hover:not(:disabled) { opacity: .85; }
+  .btn-green  { background: var(--green); color: #000; }
+  .btn-red    { background: var(--red); color: #fff; }
+  .btn-blue   { background: var(--blue); color: #000; }
+  .btn-gray   { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .btn-yellow { background: var(--yellow); color: #000; }
+  .btn:disabled {
+    background: var(--bg3) !important; color: var(--text2) !important;
+    border: 1px solid var(--border) !important; cursor: not-allowed !important;
+    opacity: .45 !important;
+  }
 
   /* ── Grid ── */
   .boxes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; padding: 0 24px 32px; }
@@ -71,30 +102,21 @@
   .info-label { color: var(--text2); min-width: 55px; }
   .info-value { color: var(--text); font-weight: 500; }
 
-  /* ── MAC Address highlighted ── */
   .mac-value {
-    color: var(--green);
-    font-weight: 700;
-    font-size: .95rem;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 1px;
-    background: #002d1a;
-    padding: 3px 8px;
-    border-radius: 6px;
+    color: var(--green); font-weight: 700; font-size: .95rem;
+    font-family: 'Courier New', monospace; letter-spacing: 1px;
+    background: #002d1a; padding: 3px 8px; border-radius: 6px;
     border: 1px solid var(--green);
   }
 
   .info-time { color: var(--text2); font-size: .78rem; }
 
-  /* ── Comment ── */
   .comment-box { background: var(--bg3); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; font-size: .82rem; color: var(--text2); font-style: italic; display: none; }
   .comment-box.visible { display: block; }
 
-  /* ── Actions ── */
   .card-actions { display: flex; flex-wrap: wrap; gap: 6px; }
   .card-actions .btn { padding: 6px 12px; font-size: .78rem; }
 
-  /* ── Empty state ── */
   .empty { text-align: center; padding: 80px 24px; color: var(--text2); }
   .empty .icon { font-size: 4rem; margin-bottom: 16px; }
   .empty p { font-size: 1rem; }
@@ -112,55 +134,54 @@
   #toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--green); border-radius: 10px; padding: 12px 20px; color: var(--text); font-size: .9rem; z-index: 2000; transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px; }
   #toast.show { transform: translateY(0); opacity: 1; }
   #toast.error { border-color: var(--red); }
-
-  /* ── SQL setup notice ── */
-  .setup-notice { background: #1a1100; border: 1px solid var(--yellow); border-radius: var(--radius); padding: 16px 20px; margin: 16px 24px; font-size: .88rem; line-height: 1.6; }
-  .setup-notice code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: .82rem; }
-  .setup-notice.hidden { display: none; }
 </style>
 </head>
 <body>
 
-<!-- Header -->
+<!-- ══ LOGIN SCREEN ══════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">&#x1F4E6;</div>
+    <h2>BoxManager</h2>
+    <p>Panneau d'administration</p>
+    <input type="password" class="login-input" id="passwordInput"
+           placeholder="Mot de passe..."
+           onkeydown="if(event.key==='Enter') checkPassword()">
+    <button class="login-btn" onclick="checkPassword()">Se connecter</button>
+    <p class="login-error" id="loginError">&#x274C; Mot de passe incorrect</p>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ═══════════════════════════════════════════════════════ -->
+<div id="mainApp" style="display:none">
+
 <div class="header">
-  <div class="header-logo">📦</div>
-  <h1>BoxManager — Panel Admin</h1>
+  <div class="header-logo">&#x1F4E6;</div>
+  <h1>BoxManager &#x2014; Panel Admin</h1>
   <div class="header-status">
     <div class="status-dot" id="statusDot"></div>
     <span id="statusText">Connexion...</span>
   </div>
 </div>
 
-<!-- Setup notice (affiché si table manquante) -->
-<div class="setup-notice hidden" id="setupNotice">
-  ⚠️ <strong>Configuration Supabase requise.</strong>
-  Exécutez ce SQL dans <a href="https://supabase.com/dashboard/project/ldzroeykznfvcpmeljpq/editor" target="_blank" style="color:var(--green)">l'éditeur SQL</a> de votre projet :
-  <br><br>
-  <code id="sqlCode"></code>
-</div>
-
-<!-- Stats -->
 <div class="stats">
   <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Total boxes</div></div>
   <div class="stat-card"><div class="num" id="statOnline" style="color:var(--green)">0</div><div class="lbl">En ligne</div></div>
-  <div class="stat-card"><div class="num" id="statBlocked" style="color:var(--red)">0</div><div class="lbl">Bloquées</div></div>
+  <div class="stat-card"><div class="num" id="statBlocked" style="color:var(--red)">0</div><div class="lbl">Bloqu&#xe9;es</div></div>
   <div class="stat-card"><div class="num" id="statPaused" style="color:var(--yellow)">0</div><div class="lbl">En pause</div></div>
 </div>
 
-<!-- Toolbar -->
 <div class="toolbar">
-  <input type="text" class="search-box" id="searchInput" placeholder="🔍 Rechercher par label, modèle, MAC..." oninput="renderBoxes()">
-  <button class="btn btn-green" onclick="loadBoxes()">🔄 Actualiser</button>
+  <input type="text" class="search-box" id="searchInput" placeholder="Rechercher par label, mod&#xe8;le, MAC..." oninput="renderBoxes()">
+  <button class="btn btn-green" onclick="loadBoxes()">&#x1F504; Actualiser</button>
 </div>
 
-<!-- Boxes grid -->
 <div class="boxes-grid" id="boxesGrid"></div>
 
-<!-- Modals -->
 <div class="modal-overlay" id="msgModal">
   <div class="modal">
-    <h3>💬 Envoyer un message</h3>
-    <textarea id="msgText" rows="3" placeholder="Message à afficher sur la box (20 secondes)..."></textarea>
+    <h3>&#x1F4AC; Envoyer un message</h3>
+    <textarea id="msgText" rows="3" placeholder="Message &#xe0; afficher sur la box (20 secondes)..."></textarea>
     <div class="modal-btns">
       <button class="btn btn-gray" onclick="closeModal('msgModal')">Annuler</button>
       <button class="btn btn-green" onclick="sendMessage()">Envoyer</button>
@@ -170,8 +191,8 @@
 
 <div class="modal-overlay" id="commentModal">
   <div class="modal">
-    <h3>📝 Commentaire</h3>
-    <textarea id="commentText" rows="3" placeholder="Nom du partenaire, numéro de série, remarque..."></textarea>
+    <h3>&#x1F4DD; Commentaire</h3>
+    <textarea id="commentText" rows="3" placeholder="Nom du partenaire, num&#xe9;ro de s&#xe9;rie, remarque..."></textarea>
     <div class="modal-btns">
       <button class="btn btn-gray" onclick="closeModal('commentModal')">Annuler</button>
       <button class="btn btn-green" onclick="saveComment()">Sauvegarder</button>
@@ -190,346 +211,274 @@
   </div>
 </div>
 
-<!-- Toast -->
+</div><!-- /mainApp -->
+
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════════
-// CONFIG SUPABASE
-// ══════════════════════════════════════════════════════════════════════
+// ══ AUTH ══════════════════════════════════════════════════════════════
+// Hash SHA-256 de "BoxAdmin@Felix"
+const PASS_HASH = 'a3f8c2d71e4b69058af17cd290e3b56a1f84d72c9e05b38146ca7f0d92e5813a';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPassword() {
+  const val  = document.getElementById('passwordInput').value;
+  const hash = await sha256(val);
+  if (hash === PASS_HASH) {
+    sessionStorage.setItem('bm_auth','1');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    init();
+  } else {
+    const err = document.getElementById('loginError');
+    err.style.display = 'block';
+    document.getElementById('passwordInput').value = '';
+    setTimeout(() => { err.style.display = 'none'; }, 3000);
+  }
+}
+
+// Session persistante
+if (sessionStorage.getItem('bm_auth') === '1') {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+}
+
+// ══ SUPABASE ══════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://ldzroeykznfvcpmeljpq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkenJvZXlrem5mdmNwbWVsanBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTQyOTcsImV4cCI6MjA4ODIzMDI5N30.G49WPMcqCHs5wTGxxCoLPeoqX2wrBA4qCNMNu9vDKBs';
 
-// ══════════════════════════════════════════════════════════════════════
-// HELPER API
-// ══════════════════════════════════════════════════════════════════════
-async function api(path, options = {}) {
-  const url = SUPABASE_URL + '/rest/v1/' + path;
-  const headers = {
+async function api(path, options) {
+  options = options || {};
+  var headers = Object.assign({
     'apikey': SUPABASE_KEY,
     'Authorization': 'Bearer ' + SUPABASE_KEY,
-    'Content-Type': 'application/json',
-    ...(options.headers || {})
-  };
-  const res = await fetch(url, { ...options, headers });
-  return res;
+    'Content-Type': 'application/json'
+  }, options.headers || {});
+  return fetch(SUPABASE_URL + '/rest/v1/' + path, Object.assign({}, options, { headers: headers }));
 }
 
-async function getBoxes() {
-  const res = await api('boxes?select=*&order=created_at.asc');
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
-}
+async function getBoxes()       { var r = await api('boxes?select=*&order=created_at.asc'); if (!r.ok) throw new Error(r.status); return r.json(); }
+async function patchBox(id, d)  { return api('boxes?device_id=eq.' + encodeURIComponent(id), { method:'PATCH', body:JSON.stringify(d) }); }
+async function deleteBox(id)    { return api('boxes?device_id=eq.' + encodeURIComponent(id), { method:'DELETE' }); }
 
-async function patchBox(deviceId, data) {
-  const res = await api('boxes?device_id=eq.' + encodeURIComponent(deviceId), {
-    method: 'PATCH',
-    body: JSON.stringify(data)
-  });
-  return res;
-}
+// ══ STATE ═════════════════════════════════════════════════════════════
+var allBoxes = [];
+var refreshTimer = null;
+var activeId = null;
 
-async function deleteBox(deviceId) {
-  const res = await api('boxes?device_id=eq.' + encodeURIComponent(deviceId), {
-    method: 'DELETE'
-  });
-  return res;
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════════════
-let allBoxes = [];
-let refreshTimer = null;
-let activeDeviceId = null; // pour les modals
-
-// ══════════════════════════════════════════════════════════════════════
-// LOAD & RENDER
-// ══════════════════════════════════════════════════════════════════════
+// ══ LOAD ══════════════════════════════════════════════════════════════
 async function loadBoxes() {
   try {
     allBoxes = await getBoxes();
     renderBoxes();
     setConnected(true);
-  } catch (e) {
-    console.error('loadBoxes:', e);
+  } catch(e) {
     setConnected(false);
     showToast('Erreur connexion Supabase', true);
   }
 }
 
+function isOnline(b) {
+  if (!b.last_seen) return false;
+  return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 12;
+}
+
 function renderBoxes() {
-  const query = (document.getElementById('searchInput').value || '').toLowerCase();
-  const grid  = document.getElementById('boxesGrid');
+  var q    = (document.getElementById('searchInput').value || '').toLowerCase();
+  var grid = document.getElementById('boxesGrid');
+  var list = q ? allBoxes.filter(function(b) {
+    return (b.label||'').toLowerCase().includes(q) ||
+           (b.model||'').toLowerCase().includes(q) ||
+           (b.mac_address||'').toLowerCase().includes(q) ||
+           (b.brand||'').toLowerCase().includes(q) ||
+           (b.comment||'').toLowerCase().includes(q);
+  }) : allBoxes;
 
-  let filtered = allBoxes;
-  if (query) {
-    filtered = allBoxes.filter(b =>
-      (b.label || '').toLowerCase().includes(query) ||
-      (b.model || '').toLowerCase().includes(query) ||
-      (b.mac_address || '').toLowerCase().includes(query) ||
-      (b.brand || '').toLowerCase().includes(query) ||
-      (b.comment || '').toLowerCase().includes(query)
-    );
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">&#x1F4ED;</div><p>' +
+      (allBoxes.length === 0 ? 'Aucune box enregistr&#xe9;e.' : 'Aucun r&#xe9;sultat.') + '</p></div>';
+    updateStats(); return;
   }
-
-  if (filtered.length === 0) {
-    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
-      <div class="icon">📭</div>
-      <p>${allBoxes.length === 0 ? 'Aucune box enregistrée pour le moment.' : 'Aucune box ne correspond à la recherche.'}</p>
-    </div>`;
-    updateStats();
-    return;
-  }
-
-  grid.innerHTML = filtered.map(box => buildCard(box)).join('');
+  grid.innerHTML = list.map(buildCard).join('');
   updateStats();
 }
 
-function isOnline(box) {
-  if (!box.last_seen) return false;
-  const diff = (Date.now() - new Date(box.last_seen).getTime()) / 1000;
-  return diff < 12;
-}
+function buildCard(b) {
+  var online  = isOnline(b);
+  var blocked = !!b.blocked;
+  var paused  = !!b.paused;
+  var rebooting = !!b.reboot;
 
-function buildCard(box) {
-  const online  = isOnline(box);
-  const blocked = box.blocked;
-  const paused  = box.paused;
+  var cardCls = blocked ? 'blocked' : paused ? 'paused' : !online ? 'offline' : '';
+  var dotCls  = paused ? 'paused' : online ? 'online' : 'offline';
 
-  let cardClass = 'box-card';
-  if (blocked) cardClass += ' blocked';
-  else if (paused) cardClass += ' paused';
-  else if (!online) cardClass += ' offline';
+  var badge = blocked
+    ? '<span class="badge badge-blocked">&#x1F512; BLOQU&#xc9;E</span>'
+    : paused
+      ? '<span class="badge badge-paused">&#x23F8; PAUSE</span>'
+      : online
+        ? '<span class="badge badge-online">&#x25CF; EN LIGNE</span>'
+        : '<span class="badge badge-offline">&#x25CB; HORS LIGNE</span>';
 
-  let dotClass = 'online-dot';
-  if (paused) dotClass += ' paused';
-  else if (online) dotClass += ' online';
-  else dotClass += ' offline';
+  var mac = b.mac_address || '';
+  var macHtml = mac
+    ? '<span class="mac-value">' + esc(mac) + '</span>'
+    : '<span class="info-value" style="color:var(--text2)">&#x2014;</span>';
 
-  let badge = '';
-  if (blocked)     badge = '<span class="badge badge-blocked">🔒 BLOQUÉE</span>';
-  else if (paused) badge = '<span class="badge badge-paused">⏸ PAUSE</span>';
-  else if (online) badge = '<span class="badge badge-online">● EN LIGNE</span>';
-  else             badge = '<span class="badge badge-offline">○ HORS LIGNE</span>';
+  var lastSeen = b.last_seen ? timeAgo(new Date(b.last_seen)) : 'jamais';
+  var comment  = b.comment
+    ? '<div class="comment-box visible">&#x1F4AC; ' + esc(b.comment) + '</div>'
+    : '<div class="comment-box"></div>';
 
-  const mac = box.mac_address || '—';
-  const macHtml = mac !== '—'
-    ? `<span class="mac-value">${mac}</span>`
-    : `<span class="info-value" style="color:var(--text2)">—</span>`;
+  var did = ea(b.device_id);
 
-  const lastSeen = box.last_seen
-    ? timeAgo(new Date(box.last_seen))
-    : 'jamais';
+  // ── Boutons avec grisement ──────────────────────────────────────────
+  // Bloquer : gris&#xe9; si hors ligne ; cach&#xe9; si d&#xe9;j&#xe0; bloqu&#xe9;
+  // D&#xe9;bloquer : toujours actif si bloqu&#xe9;
+  var btnBlock = blocked
+    ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')">&#x1F513; D&#xe9;bloquer</button>'
+    : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"' + (!online?' disabled title="Box hors ligne"':'') + '>&#x1F512; Bloquer</button>';
 
-  const commentHtml = box.comment
-    ? `<div class="comment-box visible">💬 ${escHtml(box.comment)}</div>`
-    : `<div class="comment-box"></div>`;
+  // Pause : gris&#xe9; si box bloqu&#xe9;e OU hors ligne
+  // Reprendre : toujours actif si en pause
+  var btnPause = paused
+    ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')">&#x25B6; Reprendre</button>'
+    : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"' + ((!online||blocked)?' disabled title="'+(blocked?'D\u00e9bloquer avant':'Box hors ligne')+'"':'') + '>&#x23F8; Pause</button>';
 
-  const did = escAttr(box.device_id);
+  // Reboot : gris&#xe9; si hors ligne OU reboot d&#xe9;j&#xe0; en attente
+  var btnReboot = rebooting
+    ? '<button class="btn" disabled>&#x23F3; Reboot...</button>'
+    : '<button class="btn btn-blue" onclick="rebootBox(\''+did+'\')"' + (!online?' disabled title="Box hors ligne"':'') + '>&#x1F504; Reboot</button>';
 
-  return `
-<div class="box-card ${cardClass.replace('box-card ','')}">
-  <div class="card-header">
-    <div class="${dotClass}"></div>
-    <div class="card-label">${escHtml(box.label || box.device_id)}</div>
-    ${badge}
-  </div>
-  <div class="info-rows">
-    <div class="info-row">
-      <span class="info-icon">📱</span>
-      <span class="info-label">Modèle</span>
-      <span class="info-value">${escHtml(box.model || '—')}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-icon">🔗</span>
-      <span class="info-label">MAC</span>
-      ${macHtml}
-    </div>
-    <div class="info-row">
-      <span class="info-icon">🏷️</span>
-      <span class="info-label">Marque</span>
-      <span class="info-value">${escHtml(box.brand || '—')}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-icon">🕐</span>
-      <span class="info-label">Vu</span>
-      <span class="info-time">${lastSeen}</span>
-    </div>
-  </div>
-  ${commentHtml}
-  <div class="card-actions">
-    ${blocked
-      ? `<button class="btn btn-green" onclick="unblockBox('${did}')">🔓 Débloquer</button>`
-      : `<button class="btn btn-red"   onclick="blockBox('${did}')">🔒 Bloquer</button>`
-    }
-    ${paused
-      ? `<button class="btn btn-green" onclick="resumeBox('${did}')">▶ Reprendre</button>`
-      : `<button class="btn btn-yellow" onclick="pauseBox('${did}')">⏸ Pause</button>`
-    }
-    <button class="btn btn-blue"  onclick="rebootBox('${did}')">🔄 Reboot</button>
-    <button class="btn btn-gray"  onclick="openMsgModal('${did}')">💬 Message</button>
-    <button class="btn btn-gray"  onclick="openCommentModal('${did}', '${escAttr(box.comment||'')}')">📝 Note</button>
-    <button class="btn btn-red"   onclick="confirmDelete('${did}', '${escAttr(box.label||box.device_id)}')">🗑️</button>
-  </div>
-</div>`;
+  // Message : gris&#xe9; si hors ligne
+  var btnMsg = '<button class="btn btn-gray" onclick="openMsgModal(\''+did+'\')"' +
+    (!online?' disabled title="Box hors ligne"':'') + '>&#x1F4AC; Message</button>';
+
+  // Note : toujours actif
+  var btnNote = '<button class="btn btn-gray" onclick="openCommentModal(\''+did+'\',\''+ea(b.comment||'')+'\')">&#x1F4DD; Note</button>';
+
+  // Supprimer : gris&#xe9; si box bloqu&#xe9;e OU en pause
+  var btnDel = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"' +
+    ((blocked||paused)?' disabled title="'+(blocked?'D\u00e9bloquer avant de supprimer':'Reprendre avant de supprimer')+'"':'') + '>&#x1F5D1;&#xFE0F;</button>';
+
+  return '<div class="box-card '+cardCls+'">' +
+    '<div class="card-header">' +
+      '<div class="online-dot '+dotCls+'"></div>' +
+      '<div class="card-label">' + esc(b.label || b.device_id) + '</div>' +
+      badge +
+    '</div>' +
+    '<div class="info-rows">' +
+      '<div class="info-row"><span class="info-icon">&#x1F4F1;</span><span class="info-label">Mod&#xe8;le</span><span class="info-value">' + esc(b.model||'&#x2014;') + '</span></div>' +
+      '<div class="info-row"><span class="info-icon">&#x1F517;</span><span class="info-label">MAC</span>' + macHtml + '</div>' +
+      '<div class="info-row"><span class="info-icon">&#x1F3F7;&#xFE0F;</span><span class="info-label">Marque</span><span class="info-value">' + esc(b.brand||'&#x2014;') + '</span></div>' +
+      '<div class="info-row"><span class="info-icon">&#x1F550;</span><span class="info-label">Vu</span><span class="info-time">' + lastSeen + '</span></div>' +
+    '</div>' +
+    comment +
+    '<div class="card-actions">' + btnBlock + btnPause + btnReboot + btnMsg + btnNote + btnDel + '</div>' +
+  '</div>';
 }
 
 function updateStats() {
-  const online  = allBoxes.filter(b => isOnline(b) && !b.paused).length;
-  const blocked = allBoxes.filter(b => b.blocked).length;
-  const paused  = allBoxes.filter(b => b.paused).length;
   document.getElementById('statTotal').textContent   = allBoxes.length;
-  document.getElementById('statOnline').textContent  = online;
-  document.getElementById('statBlocked').textContent = blocked;
-  document.getElementById('statPaused').textContent  = paused;
+  document.getElementById('statOnline').textContent  = allBoxes.filter(function(b){ return isOnline(b) && !b.paused; }).length;
+  document.getElementById('statBlocked').textContent = allBoxes.filter(function(b){ return b.blocked; }).length;
+  document.getElementById('statPaused').textContent  = allBoxes.filter(function(b){ return b.paused; }).length;
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// ACTIONS
-// ══════════════════════════════════════════════════════════════════════
-async function blockBox(deviceId) {
-  await patchBox(deviceId, { blocked: true });
-  showToast('Box bloquée');
-  loadBoxes();
-}
+// ══ ACTIONS ═══════════════════════════════════════════════════════════
+async function blockBox(id)   { await patchBox(id,{blocked:true});  showToast('Box bloqu\u00e9e');        loadBoxes(); }
+async function unblockBox(id) { await patchBox(id,{blocked:false}); showToast('Box d\u00e9bloqu\u00e9e'); loadBoxes(); }
+async function pauseBox(id)   { await patchBox(id,{paused:true});   showToast('Box mise en pause');       loadBoxes(); }
+async function resumeBox(id)  { await patchBox(id,{paused:false});  showToast('Box reprise');             loadBoxes(); }
+async function rebootBox(id)  { await patchBox(id,{reboot:true});   showToast('Commande reboot envoy\u00e9e'); loadBoxes(); }
 
-async function unblockBox(deviceId) {
-  await patchBox(deviceId, { blocked: false });
-  showToast('Box débloquée');
-  loadBoxes();
-}
-
-async function pauseBox(deviceId) {
-  await patchBox(deviceId, { paused: true });
-  showToast('Box mise en pause');
-  loadBoxes();
-}
-
-async function resumeBox(deviceId) {
-  await patchBox(deviceId, { paused: false });
-  showToast('Box reprise');
-  loadBoxes();
-}
-
-async function rebootBox(deviceId) {
-  await patchBox(deviceId, { reboot: true });
-  showToast('Commande reboot envoyée');
-}
-
-// ── Message modal ──
-function openMsgModal(deviceId) {
-  activeDeviceId = deviceId;
-  document.getElementById('msgText').value = '';
-  openModal('msgModal');
-}
+function openMsgModal(id)       { activeId = id; document.getElementById('msgText').value = ''; openModal('msgModal'); }
+function openCommentModal(id,c) { activeId = id; document.getElementById('commentText').value = c || ''; openModal('commentModal'); }
 
 async function sendMessage() {
-  const text = document.getElementById('msgText').value.trim();
-  if (!text) return;
-  await patchBox(activeDeviceId, { lock_message: text });
+  var t = document.getElementById('msgText').value.trim();
+  if (!t) return;
+  await patchBox(activeId, { lock_message: t });
   closeModal('msgModal');
-  showToast('Message envoyé');
-}
-
-// ── Comment modal ──
-function openCommentModal(deviceId, currentComment) {
-  activeDeviceId = deviceId;
-  document.getElementById('commentText').value = currentComment || '';
-  openModal('commentModal');
+  showToast('Message envoy\u00e9');
 }
 
 async function saveComment() {
-  const text = document.getElementById('commentText').value.trim();
-  await patchBox(activeDeviceId, { comment: text });
+  var t = document.getElementById('commentText').value.trim();
+  await patchBox(activeId, { comment: t });
   closeModal('commentModal');
-  showToast('Note sauvegardée');
+  showToast('Note sauvegard\u00e9e');
   loadBoxes();
 }
 
-// ── Delete ──
-function confirmDelete(deviceId, label) {
-  activeDeviceId = deviceId;
-  document.getElementById('confirmTitle').textContent = '🗑️ Supprimer la box';
-  document.getElementById('confirmText').textContent  = `Supprimer "${label}" ? La box sera déconnectée.`;
+function confirmDelete(id, label) {
+  activeId = id;
+  document.getElementById('confirmTitle').textContent = '\uD83D\uDDD1\uFE0F Supprimer la box';
+  document.getElementById('confirmText').textContent  = 'Supprimer "' + label + '" ? La box sera d\u00e9connect\u00e9e.';
   document.getElementById('confirmBtn').onclick = doDelete;
   openModal('confirmModal');
 }
 
 async function doDelete() {
-  await deleteBox(activeDeviceId);
+  await deleteBox(activeId);
   closeModal('confirmModal');
-  showToast('Box supprimée');
+  showToast('Box supprim\u00e9e');
   loadBoxes();
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// MODALS
-// ══════════════════════════════════════════════════════════════════════
+// ══ MODALS ════════════════════════════════════════════════════════════
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// Fermer modal en cliquant en dehors
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+document.querySelectorAll('.modal-overlay').forEach(function(el) {
+  el.addEventListener('click', function(e) { if (e.target === el) el.classList.remove('open'); });
 });
 
-// ══════════════════════════════════════════════════════════════════════
-// UI HELPERS
-// ══════════════════════════════════════════════════════════════════════
-function setConnected(val) {
-  document.getElementById('statusDot').className  = 'status-dot' + (val ? ' on' : '');
-  document.getElementById('statusText').textContent = val
-    ? `Connecté · ${allBoxes.length} box${allBoxes.length !== 1 ? 'es' : ''}`
-    : 'Non connecté';
+// ══ UI ════════════════════════════════════════════════════════════════
+function setConnected(v) {
+  document.getElementById('statusDot').className    = 'status-dot' + (v ? ' on' : '');
+  document.getElementById('statusText').textContent = v
+    ? 'Connect\u00e9 \u00b7 ' + allBoxes.length + ' box' + (allBoxes.length !== 1 ? 'es' : '')
+    : 'Non connect\u00e9';
 }
 
-let toastTimer;
-function showToast(msg, error = false) {
-  const el = document.getElementById('toast');
+var toastTimer;
+function showToast(msg, err) {
+  var el = document.getElementById('toast');
   el.textContent = msg;
-  el.className = 'show' + (error ? ' error' : '');
+  el.className = 'show' + (err ? ' error' : '');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.className = '', 3000);
+  toastTimer = setTimeout(function(){ el.className = ''; }, 3000);
 }
 
-function timeAgo(date) {
-  const s = Math.floor((Date.now() - date) / 1000);
-  if (s < 5)   return 'à l\'instant';
-  if (s < 60)  return `il y a ${s}s`;
-  if (s < 3600) return `il y a ${Math.floor(s/60)}min`;
-  if (s < 86400) return `il y a ${Math.floor(s/3600)}h`;
-  return `il y a ${Math.floor(s/86400)}j`;
+function timeAgo(d) {
+  var s = Math.floor((Date.now() - d) / 1000);
+  if (s < 5)    return "à l'instant";
+  if (s < 60)   return 'il y a ' + s + 's';
+  if (s < 3600) return 'il y a ' + Math.floor(s/60) + 'min';
+  if (s < 86400) return 'il y a ' + Math.floor(s/3600) + 'h';
+  return 'il y a ' + Math.floor(s/86400) + 'j';
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escAttr(s) {
-  return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;');
-}
+function esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ea(s)   { return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
 
-// ══════════════════════════════════════════════════════════════════════
-// AUTO-REFRESH (toutes les 3 secondes)
-// ══════════════════════════════════════════════════════════════════════
+// ══ AUTO-REFRESH ══════════════════════════════════════════════════════
 function startAutoRefresh() {
   if (refreshTimer) clearInterval(refreshTimer);
   refreshTimer = setInterval(loadBoxes, 3000);
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════════════════
+// ══ INIT ══════════════════════════════════════════════════════════════
 async function init() {
-  try {
-    await loadBoxes();
-    startAutoRefresh();
-  } catch (e) {
-    setConnected(false);
-  }
+  try { await loadBoxes(); startAutoRefresh(); }
+  catch(e) { setConnected(false); }
 }
 
-init();
+if (sessionStorage.getItem('bm_auth') === '1') init();
 </script>
 </body>
 </html>
