@@ -388,7 +388,7 @@ function buildCard(b) {
 
   var btnApk = b.install_apk
     ? '<button class="btn btn-gray" disabled>&#x23F3; MàJ...</button>'
-    : '<button class="btn btn-purple" onclick="pushApk(\''+did+'\')"'+(!online||!lastApkUrl?' disabled title="'+(!lastApkUrl?'Uploadez un APK d\'abord':'Box hors ligne')+'"':'')+'>&#x1F4E6; MàJ APK</button>';
+    : '<button class="btn btn-purple" onclick="pushApk(\''+did+'\')"'+(!online?' disabled title="Box hors ligne"':'')+'>&#x1F4E6; MàJ APK</button>';
 
   return '<div class="box-card '+cardCls+'">'
     +'<div class="card-header"><div class="online-dot '+dotCls+'"></div><div class="card-label">'+esc(b.label||b.device_id)+'</div>'+badge+'</div>'
