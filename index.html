@@ -297,7 +297,7 @@ async function deleteBox(id)   { return api('boxes?device_id=eq.'+encodeURICompo
 
 // ══ STATE ══════════════════════════════════════════════════════════════
 var allBoxes = [], refreshTimer = null, activeId = null;
-var lastApkUrl = localStorage.getItem('bm_last_apk_url') || '';
+var lastApkUrl = localStorage.getItem('bm_last_apk_url') || (SUPABASE_URL + '/storage/v1/object/public/apk/boxmanager-latest.apk');
 
 // ══ LOAD ══════════════════════════════════════════════════════════════
 async function loadBoxes() {
