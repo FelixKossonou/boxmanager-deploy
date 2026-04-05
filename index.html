@@ -8,41 +8,26 @@
   :root {
     --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
     --green: #00e5a0; --red: #ff4d4d; --yellow: #f0a500;
-    --blue: #58a6ff; --text: #e6edf3; --text2: #8b949e;
+    --blue: #58a6ff; --purple: #bc8cff; --text: #e6edf3; --text2: #8b949e;
     --border: #30363d; --radius: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
-  /* ── Login Screen ── */
-  #loginScreen {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; align-items: center; justify-content: center; z-index: 9999;
-  }
-  .login-box {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 16px; padding: 40px 36px; width: 100%; max-width: 380px; text-align: center;
-  }
+  /* ── Login ── */
+  #loginScreen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+  .login-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 40px 36px; width: 100%; max-width: 380px; text-align: center; }
   .login-logo { font-size: 48px; margin-bottom: 12px; }
   .login-box h2 { font-size: 1.5rem; color: var(--green); margin-bottom: 6px; }
   .login-box p { color: var(--text2); font-size: .9rem; margin-bottom: 28px; }
-  .login-input {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 1rem;
-    outline: none; margin-bottom: 14px; text-align: center; letter-spacing: 2px;
-  }
+  .login-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 1rem; outline: none; margin-bottom: 14px; text-align: center; letter-spacing: 2px; }
   .login-input:focus { border-color: var(--green); }
-  .login-btn {
-    width: 100%; background: var(--green); color: #000; border: none;
-    border-radius: 10px; padding: 12px; font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: opacity .2s;
-  }
+  .login-btn { width: 100%; background: var(--green); color: #000; border: none; border-radius: 10px; padding: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity .2s; }
   .login-btn:hover { opacity: .85; }
   .login-error { color: var(--red); font-size: .85rem; margin-top: 12px; display: none; }
   .input-wrap { position: relative; margin-bottom: 14px; }
   .input-wrap .login-input { margin-bottom: 0; padding-right: 44px; }
   .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--text2); padding: 0; line-height: 1; }
-  .eye-btn:hover { color: var(--text); }
 
   /* ── Header ── */
   .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
@@ -72,14 +57,11 @@
   .btn-blue   { background: var(--blue); color: #000; }
   .btn-gray   { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
   .btn-yellow { background: var(--yellow); color: #000; }
-  .btn:disabled {
-    background: var(--bg3) !important; color: var(--text2) !important;
-    border: 1px solid var(--border) !important; cursor: not-allowed !important;
-    opacity: .45 !important;
-  }
+  .btn-purple { background: var(--purple); color: #000; }
+  .btn:disabled { background: var(--bg3) !important; color: var(--text2) !important; border: 1px solid var(--border) !important; cursor: not-allowed !important; opacity: .45 !important; }
 
   /* ── Grid ── */
-  .boxes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; padding: 0 24px 32px; }
+  .boxes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; padding: 0 24px 32px; }
 
   /* ── Box Card ── */
   .box-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: border-color .2s; }
@@ -105,37 +87,46 @@
   .info-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
   .info-row { display: flex; align-items: center; gap: 8px; font-size: .85rem; }
   .info-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
-  .info-label { color: var(--text2); min-width: 55px; }
+  .info-label { color: var(--text2); min-width: 60px; }
   .info-value { color: var(--text); font-weight: 500; }
-
-  .mac-value {
-    color: var(--green); font-weight: 700; font-size: .95rem;
-    font-family: 'Courier New', monospace; letter-spacing: 1px;
-    background: #002d1a; padding: 3px 8px; border-radius: 6px;
-    border: 1px solid var(--green);
-  }
-
+  .mac-value { color: var(--green); font-weight: 700; font-size: .95rem; font-family: 'Courier New', monospace; letter-spacing: 1px; background: #002d1a; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--green); }
   .info-time { color: var(--text2); font-size: .78rem; }
+  .apk-badge { font-size: .78rem; background: #1a1a2e; color: var(--blue); border: 1px solid var(--blue); padding: 2px 7px; border-radius: 5px; font-family: monospace; }
+  .location-link { color: var(--green); text-decoration: none; font-size: .82rem; }
+  .location-link:hover { text-decoration: underline; }
+  .location-time { color: var(--text2); font-size: .75rem; margin-left: 4px; }
+
+  /* ── Screenshot section ── */
+  .screenshot-section { margin-bottom: 12px; }
+  .screenshot-thumb { width: 100%; max-height: 90px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); transition: border-color .2s; display: block; }
+  .screenshot-thumb:hover { border-color: var(--green); }
+  .screenshot-info { font-size: .75rem; color: var(--text2); margin-top: 4px; text-align: right; }
+  .screenshot-requesting { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 8px; text-align: center; font-size: .8rem; color: var(--text2); }
 
   .comment-box { background: var(--bg3); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; font-size: .82rem; color: var(--text2); font-style: italic; display: none; }
   .comment-box.visible { display: block; }
 
   .card-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-  .card-actions .btn { padding: 6px 12px; font-size: .78rem; }
+  .card-actions .btn { padding: 6px 10px; font-size: .75rem; }
 
   .empty { text-align: center; padding: 80px 24px; color: var(--text2); }
   .empty .icon { font-size: 4rem; margin-bottom: 16px; }
-  .empty p { font-size: 1rem; }
 
   /* ── Modal ── */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 1000; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 24px; min-width: 320px; max-width: 500px; width: 90%; }
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 24px; min-width: 320px; max-width: 520px; width: 90%; }
+  .modal-wide { max-width: 700px; }
   #confirmText { color: var(--text2); margin-bottom: 16px; line-height: 1.7; }
   .modal h3 { margin-bottom: 16px; color: var(--green); }
-  .modal textarea, .modal input[type=text] { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: var(--text); font-size: .9rem; resize: vertical; outline: none; }
+  .modal textarea, .modal input[type=text], .modal input[type=file] { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: var(--text); font-size: .9rem; resize: vertical; outline: none; }
   .modal textarea:focus, .modal input:focus { border-color: var(--green); }
   .modal-btns { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+  #screenshotImg { width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+  .apk-url-display { font-size: .78rem; color: var(--text2); margin-top: 8px; word-break: break-all; background: var(--bg3); padding: 6px 8px; border-radius: 6px; }
+  .progress-bar { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 12px; overflow: hidden; display: none; }
+  .progress-bar.active { display: block; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
 
   /* ── Toast ── */
   #toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--green); border-radius: 10px; padding: 12px 20px; color: var(--text); font-size: .9rem; z-index: 2000; transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px; }
@@ -145,7 +136,7 @@
 </head>
 <body>
 
-<!-- ══ LOGIN SCREEN ══════════════════════════════════════════════════ -->
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════ -->
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">&#x1F4E6;</div>
@@ -155,14 +146,14 @@
       <input type="password" class="login-input" id="passwordInput"
              placeholder="Mot de passe..."
              onkeydown="if(event.key==='Enter') checkPassword()">
-      <button class="eye-btn" type="button" onclick="togglePwd()" id="eyeBtn">&#x1F441;&#xFE0F;</button>
+      <button class="eye-btn" onclick="togglePwd()" id="eyeBtn">&#x1F441;&#xFE0F;</button>
     </div>
     <button class="login-btn" onclick="checkPassword()">Se connecter</button>
     <p class="login-error" id="loginError">&#x274C; Mot de passe incorrect</p>
   </div>
 </div>
 
-<!-- ══ MAIN APP ═══════════════════════════════════════════════════════ -->
+<!-- ══ APP ════════════════════════════════════════════════════════════ -->
 <div id="mainApp" style="display:none">
 
 <div class="header">
@@ -185,10 +176,12 @@
 <div class="toolbar">
   <input type="text" class="search-box" id="searchInput" placeholder="Rechercher par label, mod&#xe8;le, MAC..." oninput="renderBoxes()">
   <button class="btn btn-green" onclick="loadBoxes()">&#x1F504; Actualiser</button>
+  <button class="btn btn-purple" onclick="openApkUploadModal()">&#x1F4E6; Upload APK</button>
 </div>
 
 <div class="boxes-grid" id="boxesGrid"></div>
 
+<!-- ── Modals ── -->
 <div class="modal-overlay" id="msgModal">
   <div class="modal">
     <h3>&#x1F4AC; Envoyer un message</h3>
@@ -222,49 +215,64 @@
   </div>
 </div>
 
-</div><!-- /mainApp -->
+<!-- Screenshot viewer -->
+<div class="modal-overlay" id="screenshotModal">
+  <div class="modal modal-wide">
+    <h3>&#x1F4F7; Screenshot &#x2014; <span id="screenshotBoxLabel"></span></h3>
+    <img id="screenshotImg" src="" alt="Screenshot">
+    <div style="font-size:.78rem;color:var(--text2);margin-top:8px;" id="screenshotTime"></div>
+    <div class="modal-btns">
+      <button class="btn btn-gray" onclick="closeModal('screenshotModal')">Fermer</button>
+      <a class="btn btn-blue" id="screenshotDlLink" href="" target="_blank" download>&#x2B07;&#xFE0F; T&#xe9;l&#xe9;charger</a>
+    </div>
+  </div>
+</div>
 
+<!-- APK Upload -->
+<div class="modal-overlay" id="apkModal">
+  <div class="modal">
+    <h3>&#x1F4E6; Upload APK</h3>
+    <p style="color:var(--text2);font-size:.85rem;margin-bottom:12px;">S&#xe9;lectionnez l'APK BoxManager &#xe0; d&#xe9;ployer sur les boxes.</p>
+    <input type="file" id="apkFile" accept=".apk" onchange="onApkSelected()">
+    <div class="progress-bar" id="apkProgress"><div class="progress-fill" id="apkProgressFill" style="width:0%"></div></div>
+    <div class="apk-url-display" id="apkUrlDisplay" style="display:none"></div>
+    <div class="modal-btns">
+      <button class="btn btn-gray" onclick="closeModal('apkModal')">Fermer</button>
+      <button class="btn btn-purple" id="apkUploadBtn" onclick="uploadApkFile()" disabled>&#x2B06;&#xFE0F; Uploader</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /mainApp -->
 <div id="toast"></div>
 
 <script>
 // ══ AUTH ══════════════════════════════════════════════════════════════
-// Hash SHA-256 de "BoxAdmin@Felix"
 const PASS_HASH = 'ccd519bb6954404cd8bf5916a4d6c20fc2485202e4dd084314b1a45483959939';
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
-
 function togglePwd() {
-  var inp = document.getElementById('passwordInput');
-  var btn = document.getElementById('eyeBtn');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    btn.textContent = '\uD83D\uDE48'; // masquer
-  } else {
-    inp.type = 'password';
-    btn.innerHTML = '&#x1F441;&#xFE0F;'; // voir
-  }
+  var i = document.getElementById('passwordInput'), b = document.getElementById('eyeBtn');
+  if (i.type === 'password') { i.type = 'text'; b.textContent = '\uD83D\uDE48'; }
+  else { i.type = 'password'; b.innerHTML = '&#x1F441;&#xFE0F;'; }
 }
-
 async function checkPassword() {
-  const val  = document.getElementById('passwordInput').value;
-  const hash = await sha256(val);
-  if (hash === PASS_HASH) {
+  const h = await sha256(document.getElementById('passwordInput').value);
+  if (h === PASS_HASH) {
     sessionStorage.setItem('bm_auth','1');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     init();
   } else {
-    const err = document.getElementById('loginError');
-    err.style.display = 'block';
+    var e = document.getElementById('loginError');
+    e.style.display = 'block';
     document.getElementById('passwordInput').value = '';
-    setTimeout(() => { err.style.display = 'none'; }, 3000);
+    setTimeout(function(){ e.style.display='none'; }, 3000);
   }
 }
-
-// Session persistante
 if (sessionStorage.getItem('bm_auth') === '1') {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'block';
@@ -274,35 +282,31 @@ if (sessionStorage.getItem('bm_auth') === '1') {
 const SUPABASE_URL = 'https://ldzroeykznfvcpmeljpq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkenJvZXlrem5mdmNwbWVsanBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTQyOTcsImV4cCI6MjA4ODIzMDI5N30.G49WPMcqCHs5wTGxxCoLPeoqX2wrBA4qCNMNu9vDKBs';
 
-async function api(path, options) {
-  options = options || {};
-  var headers = Object.assign({
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY,
-    'Content-Type': 'application/json'
-  }, options.headers || {});
-  return fetch(SUPABASE_URL + '/rest/v1/' + path, Object.assign({}, options, { headers: headers }));
+async function api(path, opts) {
+  opts = opts || {};
+  var h = Object.assign({ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json' }, opts.headers||{});
+  return fetch(SUPABASE_URL+'/rest/v1/'+path, Object.assign({}, opts, { headers: h }));
+}
+async function storageUpload(path, blob, contentType) {
+  return fetch(SUPABASE_URL+'/storage/v1/object/'+path, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': contentType, 'x-upsert': 'true' },
+    body: blob
+  });
 }
 
-async function getBoxes()       { var r = await api('boxes?select=*&order=created_at.asc'); if (!r.ok) throw new Error(r.status); return r.json(); }
-async function patchBox(id, d)  { return api('boxes?device_id=eq.' + encodeURIComponent(id), { method:'PATCH', body:JSON.stringify(d) }); }
-async function deleteBox(id)    { return api('boxes?device_id=eq.' + encodeURIComponent(id), { method:'DELETE' }); }
+async function getBoxes()      { var r = await api('boxes?select=*&order=created_at.asc'); if (!r.ok) throw new Error(r.status); return r.json(); }
+async function patchBox(id, d) { return api('boxes?device_id=eq.'+encodeURIComponent(id), { method:'PATCH', body:JSON.stringify(d) }); }
+async function deleteBox(id)   { return api('boxes?device_id=eq.'+encodeURIComponent(id), { method:'DELETE' }); }
 
-// ══ STATE ═════════════════════════════════════════════════════════════
-var allBoxes = [];
-var refreshTimer = null;
-var activeId = null;
+// ══ STATE ══════════════════════════════════════════════════════════════
+var allBoxes = [], refreshTimer = null, activeId = null;
+var lastApkUrl = localStorage.getItem('bm_last_apk_url') || '';
 
 // ══ LOAD ══════════════════════════════════════════════════════════════
 async function loadBoxes() {
-  try {
-    allBoxes = await getBoxes();
-    renderBoxes();
-    setConnected(true);
-  } catch(e) {
-    setConnected(false);
-    showToast('Erreur connexion Supabase', true);
-  }
+  try { allBoxes = await getBoxes(); renderBoxes(); setConnected(true); }
+  catch(e) { setConnected(false); showToast('Erreur connexion Supabase', true); }
 }
 
 function isOnline(b) {
@@ -311,19 +315,14 @@ function isOnline(b) {
 }
 
 function renderBoxes() {
-  var q    = (document.getElementById('searchInput').value || '').toLowerCase();
+  var q = (document.getElementById('searchInput').value || '').toLowerCase();
   var grid = document.getElementById('boxesGrid');
   var list = q ? allBoxes.filter(function(b) {
-    return (b.label||'').toLowerCase().includes(q) ||
-           (b.model||'').toLowerCase().includes(q) ||
-           (b.mac_address||'').toLowerCase().includes(q) ||
-           (b.brand||'').toLowerCase().includes(q) ||
-           (b.comment||'').toLowerCase().includes(q);
+    return (b.label||'').toLowerCase().includes(q) || (b.model||'').toLowerCase().includes(q) ||
+           (b.mac_address||'').toLowerCase().includes(q) || (b.comment||'').toLowerCase().includes(q);
   }) : allBoxes;
-
   if (list.length === 0) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">&#x1F4ED;</div><p>' +
-      (allBoxes.length === 0 ? 'Aucune box enregistr&#xe9;e.' : 'Aucun r&#xe9;sultat.') + '</p></div>';
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">&#x1F4ED;</div><p>'+(allBoxes.length===0?'Aucune box enregistr\u00e9e.':'Aucun r\u00e9sultat.')+'</p></div>';
     updateStats(); return;
   }
   grid.innerHTML = list.map(buildCard).join('');
@@ -332,78 +331,102 @@ function renderBoxes() {
 
 function buildCard(b) {
   var online  = isOnline(b);
-  var blocked = !!b.blocked;
-  var paused  = !!b.paused;
-  var rebooting = !!b.reboot;
-
+  var blocked = !!b.blocked, paused = !!b.paused, rebooting = !!b.reboot;
   var cardCls = blocked ? 'blocked' : paused ? 'paused' : !online ? 'offline' : '';
   var dotCls  = paused ? 'paused' : online ? 'online' : 'offline';
 
   var badge = blocked
-    ? '<span class="badge badge-blocked">&#x1F512; BLOQU&#xc9;E</span>'
+    ? '<span class="badge badge-blocked">&#x1F512; BLOQU\u00c9E</span>'
     : paused
       ? '<span class="badge badge-paused">&#x23F8; PAUSE</span>'
       : online
         ? '<span class="badge badge-online">&#x25CF; EN LIGNE</span>'
         : '<span class="badge badge-offline">&#x25CB; HORS LIGNE</span>';
 
-  var mac = b.mac_address || '';
-  var macHtml = mac
-    ? '<span class="mac-value">' + esc(mac) + '</span>'
-    : '<span class="info-value" style="color:var(--text2)">&#x2014;</span>';
+  var macHtml = b.mac_address
+    ? '<span class="mac-value">'+esc(b.mac_address)+'</span>'
+    : '<span class="info-value" style="color:var(--text2)">—</span>';
+
+  var apkHtml = b.apk_version
+    ? '<span class="apk-badge">v'+esc(b.apk_version)+'</span>'
+    : '<span style="color:var(--text2);font-size:.8rem">—</span>';
+
+  // Localisation
+  var locHtml;
+  if (b.latitude && b.longitude) {
+    var mapsUrl = 'https://www.google.com/maps?q='+b.latitude+','+b.longitude;
+    var locAge  = b.location_updated_at ? ' <span class="location-time">'+timeAgo(new Date(b.location_updated_at))+'</span>' : '';
+    locHtml = '<a class="location-link" href="'+mapsUrl+'" target="_blank">&#x1F4CD; '+b.latitude.toFixed(4)+', '+b.longitude.toFixed(4)+'</a>'+locAge;
+  } else {
+    locHtml = '<span style="color:var(--text2);font-size:.8rem">—</span>';
+  }
 
   var lastSeen = b.last_seen ? timeAgo(new Date(b.last_seen)) : 'jamais';
-  var comment  = b.comment
-    ? '<div class="comment-box visible">&#x1F4AC; ' + esc(b.comment) + '</div>'
-    : '<div class="comment-box"></div>';
+  var comment  = b.comment ? '<div class="comment-box visible">&#x1F4AC; '+esc(b.comment)+'</div>' : '<div class="comment-box"></div>';
+
+  // Screenshot section
+  var screenshotSection = '';
+  if (b.request_screenshot) {
+    screenshotSection = '<div class="screenshot-section"><div class="screenshot-requesting">&#x23F3; Screenshot en cours...</div></div>';
+  } else if (b.screenshot_url) {
+    var scrTime = b.screenshot_updated_at ? timeAgo(new Date(b.screenshot_updated_at)) : '';
+    screenshotSection = '<div class="screenshot-section">'
+      + '<img class="screenshot-thumb" src="'+esc(b.screenshot_url)+'" alt="Screenshot" '
+      + 'onclick="viewScreenshot(\''+ea(b.screenshot_url)+'\',\''+ea(b.label||b.device_id)+'\',\''+ea(b.screenshot_updated_at||'')+'\')"/>'
+      + '<div class="screenshot-info">&#x1F4F7; '+scrTime+'</div></div>';
+  }
 
   var did = ea(b.device_id);
 
-  // ── Boutons avec grisement ──────────────────────────────────────────
-  // Bloquer : gris&#xe9; si hors ligne ; cach&#xe9; si d&#xe9;j&#xe0; bloqu&#xe9;
-  // D&#xe9;bloquer : toujours actif si bloqu&#xe9;
-  // Bloquer : gris&#xe9; si hors ligne OU en pause
+  // Boutons existants
   var btnBlock = blocked
-    ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')">&#x1F513; D&#xe9;bloquer</button>'
-    : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"' + ((!online||paused)?' disabled title="'+(paused?'Reprendre avant':'Box hors ligne')+'"':'') + '>&#x1F512; Bloquer</button>';
+    ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')">&#x1F513; D\u00e9bloquer</button>'
+    : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"'+((!online||paused)?' disabled':'')+'">&#x1F512; Bloquer</button>';
 
-  // Pause : gris&#xe9; si box bloqu&#xe9;e OU hors ligne
-  // Reprendre : toujours actif si en pause
   var btnPause = paused
     ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')">&#x25B6; Reprendre</button>'
-    : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"' + ((!online||blocked)?' disabled title="'+(blocked?'D\u00e9bloquer avant':'Box hors ligne')+'"':'') + '>&#x23F8; Pause</button>';
+    : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"'+((!online||blocked)?' disabled':'')+'">&#x23F8; Pause</button>';
 
-  // Reboot : gris&#xe9; si hors ligne OU reboot en attente OU en pause
   var btnReboot = rebooting
     ? '<button class="btn" disabled>&#x23F3; Reboot...</button>'
-    : '<button class="btn btn-blue" onclick="rebootBox(\''+did+'\')"' + ((!online||paused)?' disabled title="'+(paused?'Reprendre avant':'Box hors ligne')+'"':'') + '>&#x1F504; Reboot</button>';
+    : '<button class="btn btn-blue" onclick="rebootBox(\''+did+'\')"'+((!online||paused)?' disabled':'')+'>&#x1F504; Reboot</button>';
 
-  // Message : gris&#xe9; si hors ligne
-  var btnMsg = '<button class="btn btn-gray" onclick="openMsgModal(\''+did+'\')"' +
-    (!online?' disabled title="Box hors ligne"':'') + '>&#x1F4AC; Message</button>';
-
-  // Note : toujours actif
+  var btnMsg  = '<button class="btn btn-gray" onclick="openMsgModal(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4AC; Message</button>';
   var btnNote = '<button class="btn btn-gray" data-cmt="'+esc(b.comment||'')+'" onclick="openCommentModal(\''+did+'\',this.dataset.cmt)">&#x1F4DD; Note</button>';
+  var btnDel  = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"'+((blocked||paused)?' disabled':'')+'>&#x1F5D1;&#xFE0F;</button>';
 
-  // Supprimer : gris&#xe9; si box bloqu&#xe9;e OU en pause
-  var btnDel = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"' +
-    ((blocked||paused)?' disabled title="'+(blocked?'D\u00e9bloquer avant de supprimer':'Reprendre avant de supprimer')+'"':'') + '>&#x1F5D1;&#xFE0F;</button>';
+  // Nouveaux boutons
+  var locRequesting = !!b.request_location;
+  var btnLoc = locRequesting
+    ? '<button class="btn btn-gray" disabled>&#x23F3; Localisation...</button>'
+    : '<button class="btn btn-green" onclick="requestLocation(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4CD; Localiser</button>';
 
-  return '<div class="box-card '+cardCls+'">' +
-    '<div class="card-header">' +
-      '<div class="online-dot '+dotCls+'"></div>' +
-      '<div class="card-label">' + esc(b.label || b.device_id) + '</div>' +
-      badge +
-    '</div>' +
-    '<div class="info-rows">' +
-      '<div class="info-row"><span class="info-icon">&#x1F4F1;</span><span class="info-label">Mod&#xe8;le</span><span class="info-value">' + esc(b.model||'&#x2014;') + '</span></div>' +
-      '<div class="info-row"><span class="info-icon">&#x1F517;</span><span class="info-label">MAC</span>' + macHtml + '</div>' +
-      '<div class="info-row"><span class="info-icon">&#x1F3F7;&#xFE0F;</span><span class="info-label">Marque</span><span class="info-value">' + esc(b.brand||'&#x2014;') + '</span></div>' +
-      '<div class="info-row"><span class="info-icon">&#x1F550;</span><span class="info-label">Vu</span><span class="info-time">' + lastSeen + '</span></div>' +
-    '</div>' +
-    comment +
-    '<div class="card-actions">' + btnBlock + btnPause + btnReboot + btnMsg + btnNote + btnDel + '</div>' +
-  '</div>';
+  var scrRequesting = !!b.request_screenshot;
+  var btnScreenshot = scrRequesting
+    ? '<button class="btn btn-gray" disabled>&#x23F3; Screenshot...</button>'
+    : '<button class="btn btn-gray" onclick="requestScreenshot(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4F7; Screenshot</button>';
+
+  var btnApk = b.install_apk
+    ? '<button class="btn btn-gray" disabled>&#x23F3; MàJ...</button>'
+    : '<button class="btn btn-purple" onclick="pushApk(\''+did+'\')"'+(!online||!lastApkUrl?' disabled title="'+(!lastApkUrl?'Uploadez un APK d\'abord':'Box hors ligne')+'"':'')+'>&#x1F4E6; MàJ APK</button>';
+
+  return '<div class="box-card '+cardCls+'">'
+    +'<div class="card-header"><div class="online-dot '+dotCls+'"></div><div class="card-label">'+esc(b.label||b.device_id)+'</div>'+badge+'</div>'
+    +'<div class="info-rows">'
+      +'<div class="info-row"><span class="info-icon">&#x1F4F1;</span><span class="info-label">Mod\u00e8le</span><span class="info-value">'+esc(b.model||'—')+'</span></div>'
+      +'<div class="info-row"><span class="info-icon">&#x1F517;</span><span class="info-label">MAC</span>'+macHtml+'</div>'
+      +'<div class="info-row"><span class="info-icon">&#x1F4BB;</span><span class="info-label">Version</span>'+apkHtml+'</div>'
+      +'<div class="info-row"><span class="info-icon">&#x1F4CD;</span><span class="info-label">Position</span>'+locHtml+'</div>'
+      +'<div class="info-row"><span class="info-icon">&#x1F550;</span><span class="info-label">Vu</span><span class="info-time">'+lastSeen+'</span></div>'
+    +'</div>'
+    +screenshotSection
+    +comment
+    +'<div class="card-actions">'
+      +btnBlock+btnPause+btnReboot+btnMsg+btnNote
+      +'<br style="width:100%;height:0;flex-basis:100%;border:0;margin:2px 0">'
+      +btnLoc+btnScreenshot+btnApk+btnDel
+    +'</div>'
+  +'</div>';
 }
 
 function updateStats() {
@@ -413,12 +436,104 @@ function updateStats() {
   document.getElementById('statPaused').textContent  = allBoxes.filter(function(b){ return b.paused; }).length;
 }
 
-// ══ ACTIONS ═══════════════════════════════════════════════════════════
+// ══ ACTIONS EXISTANTES ════════════════════════════════════════════════
 async function blockBox(id)   { await patchBox(id,{blocked:true});  showToast('Box bloqu\u00e9e');        loadBoxes(); }
 async function unblockBox(id) { await patchBox(id,{blocked:false}); showToast('Box d\u00e9bloqu\u00e9e'); loadBoxes(); }
 async function pauseBox(id)   { await patchBox(id,{paused:true});   showToast('Box mise en pause');       loadBoxes(); }
 async function resumeBox(id)  { await patchBox(id,{paused:false});  showToast('Box reprise');             loadBoxes(); }
 async function rebootBox(id)  { await patchBox(id,{reboot:true});   showToast('Commande reboot envoy\u00e9e'); loadBoxes(); }
+
+// ══ NOUVELLES ACTIONS ═════════════════════════════════════════════════
+
+/** Demander la localisation GPS/IP de la box */
+async function requestLocation(id) {
+  await patchBox(id, { request_location: true });
+  showToast('&#x1F4CD; Localisation demand\u00e9e — max 35s');
+  loadBoxes();
+}
+
+/** Demander un screenshot de la box */
+async function requestScreenshot(id) {
+  await patchBox(id, { request_screenshot: true });
+  showToast('&#x1F4F7; Screenshot demand\u00e9...');
+  loadBoxes();
+}
+
+/** Afficher le screenshot en plein écran */
+function viewScreenshot(url, label, updatedAt) {
+  document.getElementById('screenshotImg').src = url + '&nocache=' + Date.now();
+  document.getElementById('screenshotBoxLabel').textContent = label;
+  document.getElementById('screenshotTime').textContent = updatedAt
+    ? 'Pris ' + timeAgo(new Date(updatedAt)) : '';
+  document.getElementById('screenshotDlLink').href = url;
+  openModal('screenshotModal');
+}
+
+/** Pousser l'APK vers une box spécifique */
+async function pushApk(id) {
+  if (!lastApkUrl) { showToast('Uploadez d\'abord un APK via le bouton "Upload APK"', true); return; }
+  await patchBox(id, { install_apk: true, install_apk_url: lastApkUrl });
+  showToast('&#x1F4E6; Installation APK en cours...');
+  loadBoxes();
+}
+
+/** Ouvrir le modal d'upload APK */
+function openApkUploadModal() {
+  document.getElementById('apkFile').value = '';
+  document.getElementById('apkUploadBtn').disabled = true;
+  var disp = document.getElementById('apkUrlDisplay');
+  if (lastApkUrl) {
+    disp.style.display = 'block';
+    disp.textContent = '&#x2705; APK actuel: ' + lastApkUrl;
+  } else {
+    disp.style.display = 'none';
+  }
+  document.getElementById('apkProgress').classList.remove('active');
+  openModal('apkModal');
+}
+
+function onApkSelected() {
+  var f = document.getElementById('apkFile').files[0];
+  document.getElementById('apkUploadBtn').disabled = !f;
+}
+
+/** Uploader l'APK dans Supabase Storage */
+async function uploadApkFile() {
+  var file = document.getElementById('apkFile').files[0];
+  if (!file) return;
+  var btn = document.getElementById('apkUploadBtn');
+  var bar = document.getElementById('apkProgress');
+  var fill = document.getElementById('apkProgressFill');
+  var disp = document.getElementById('apkUrlDisplay');
+
+  btn.disabled = true;
+  btn.textContent = 'Upload...';
+  bar.classList.add('active');
+  fill.style.width = '10%';
+
+  try {
+    var r = await storageUpload('apk/boxmanager-latest.apk', file, 'application/vnd.android.package-archive');
+    fill.style.width = '100%';
+    if (r.ok) {
+      lastApkUrl = SUPABASE_URL + '/storage/v1/object/public/apk/boxmanager-latest.apk';
+      localStorage.setItem('bm_last_apk_url', lastApkUrl);
+      disp.style.display = 'block';
+      disp.textContent = '\u2705 Upload\u00e9: ' + lastApkUrl;
+      showToast('\u2705 APK upload\u00e9 — pr\u00eat \u00e0 d\u00e9ployer');
+      btn.textContent = '\u2705 Upload\u00e9 !';
+    } else {
+      var err = await r.text();
+      showToast('Erreur upload: ' + err, true);
+      btn.textContent = '\u2B06\uFE0F Uploader';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    showToast('Erreur: ' + e.message, true);
+    btn.textContent = '\u2B06\uFE0F Uploader';
+    btn.disabled = false;
+  }
+  setTimeout(function(){ bar.classList.remove('active'); fill.style.width='0%'; }, 1000);
+}
 
 function openMsgModal(id)       { activeId = id; document.getElementById('msgText').value = ''; openModal('msgModal'); }
 function openCommentModal(id,c) { activeId = id; document.getElementById('commentText').value = c || ''; openModal('commentModal'); }
@@ -430,7 +545,6 @@ async function sendMessage() {
   closeModal('msgModal');
   showToast('Message envoy\u00e9');
 }
-
 async function saveComment() {
   var t = document.getElementById('commentText').value.trim();
   await patchBox(activeId, { comment: t || null });
@@ -441,28 +555,22 @@ async function saveComment() {
 
 function confirmDelete(id, label) {
   activeId = id;
-  var box    = allBoxes.find(function(b){ return b.device_id === id; });
+  var box = allBoxes.find(function(b){ return b.device_id === id; });
   var online = box && isOnline(box);
   document.getElementById('confirmTitle').textContent = '\uD83D\uDDD1\uFE0F Supprimer la box';
   document.getElementById('confirmText').innerHTML =
-    '<strong style="color:var(--yellow)">\u26A0\uFE0F Confirmer la suppression</strong><br><br>' +
-    'La box <strong>"' + label + '"</strong> sera :<br>' +
-    '\u2022 Lib\u00e9r\u00e9e de toutes les restrictions<br>' +
-    '\u2022 D\u00e9connect\u00e9e du panel (plus de trafic)<br>' +
-    '\u2022 Red\u00e9marr\u00e9e proprement<br>' +
-    '\u2022 (BoxManager d\u00e9sinstallable manuellement apr\u00e8s)<br><br>' +
-    (online
-      ? '<span style="color:var(--green)">\u2705 Box en ligne &mdash; lib\u00e9ration dans les 5 secondes.</span>'
-      : '<span style="color:var(--yellow)">\u26A0\uFE0F Box hors ligne &mdash; lib\u00e9ration au prochain d\u00e9marrage.</span>');
+    '<strong style="color:var(--yellow)">\u26A0\uFE0F Confirmer la suppression</strong><br><br>'
+    + 'La box <strong>"'+label+'"</strong> sera lib\u00e9r\u00e9e de toutes les restrictions.<br><br>'
+    + (online
+       ? '<span style="color:var(--green)">\u2705 Box en ligne — lib\u00e9ration dans 5s.</span>'
+       : '<span style="color:var(--yellow)">\u26A0\uFE0F Box hors ligne — lib\u00e9ration au prochain d\u00e9marrage.</span>');
   document.getElementById('confirmBtn').onclick = doDelete;
   openModal('confirmModal');
 }
-
 async function doDelete() {
   closeModal('confirmModal');
-  showToast('\u23F3 Lib\u00e9ration en cours...');
   await deleteBox(activeId);
-  showToast('\u2705 Box supprim\u00e9e \u2014 r\u00e9initialisation en cours');
+  showToast('\u2705 Box supprim\u00e9e');
   loadBoxes();
 }
 
@@ -475,32 +583,32 @@ document.querySelectorAll('.modal-overlay').forEach(function(el) {
 
 // ══ UI ════════════════════════════════════════════════════════════════
 function setConnected(v) {
-  document.getElementById('statusDot').className    = 'status-dot' + (v ? ' on' : '');
+  document.getElementById('statusDot').className = 'status-dot'+(v?' on':'');
   document.getElementById('statusText').textContent = v
-    ? 'Connect\u00e9 \u00b7 ' + allBoxes.length + ' box' + (allBoxes.length !== 1 ? 'es' : '')
+    ? 'Connect\u00e9 \u00b7 '+allBoxes.length+' box'+(allBoxes.length!==1?'es':'')
     : 'Non connect\u00e9';
 }
 
 var toastTimer;
 function showToast(msg, err) {
   var el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'show' + (err ? ' error' : '');
+  el.innerHTML = msg;
+  el.className = 'show'+(err?' error':'');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ el.className = ''; }, 3000);
+  toastTimer = setTimeout(function(){ el.className=''; }, 3500);
 }
 
 function timeAgo(d) {
-  var s = Math.floor((Date.now() - d) / 1000);
-  if (s < 5)    return "à l'instant";
-  if (s < 60)   return 'il y a ' + s + 's';
-  if (s < 3600) return 'il y a ' + Math.floor(s/60) + 'min';
-  if (s < 86400) return 'il y a ' + Math.floor(s/3600) + 'h';
-  return 'il y a ' + Math.floor(s/86400) + 'j';
+  var s = Math.floor((Date.now()-d)/1000);
+  if (s < 5)    return "\u00e0 l'instant";
+  if (s < 60)   return 'il y a '+s+'s';
+  if (s < 3600) return 'il y a '+Math.floor(s/60)+'min';
+  if (s < 86400) return 'il y a '+Math.floor(s/3600)+'h';
+  return 'il y a '+Math.floor(s/86400)+'j';
 }
 
-function esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function ea(s)   { return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ea(s)  { return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
 
 // ══ AUTO-REFRESH ══════════════════════════════════════════════════════
 function startAutoRefresh() {
