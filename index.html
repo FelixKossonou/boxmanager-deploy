@@ -443,10 +443,18 @@ function viewScreenshot(url, label, updatedAt) {
 
 /** Pousser l'APK vers une box spécifique */
 async function pushApk(id) {
-  if (!lastApkUrl) { showToast('Uploadez d\'abord un APK via le bouton "Upload APK"', true); return; }
   await patchBox(id, { install_apk: true, install_apk_url: lastApkUrl });
   showToast('&#x1F4E6; Installation APK en cours...');
   loadBoxes();
+  // Timeout 3min : si la box n'a pas répondu, reset install_apk
+  setTimeout(async function() {
+    var boxes = await supa('boxes?select=device_id,install_apk&device_id=eq.'+id).then(function(r){return r.json();});
+    if (boxes && boxes[0] && boxes[0].install_apk) {
+      await patchBox(id, { install_apk: false });
+      showToast('&#x26A0;&#xFE0F; MàJ APK : pas de réponse (vieille version ?)', true);
+      loadBoxes();
+    }
+  }, 3 * 60 * 1000);
 }
 
 /** Ouvrir le modal d'upload APK */
