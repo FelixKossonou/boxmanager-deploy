@@ -339,7 +339,7 @@ async function loadBoxes() {
 
 function isOnline(b) {
   if (!b.last_seen) return false;
-  return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 30;
+  return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 90;
 }
 
 function renderBoxes() {
@@ -422,6 +422,11 @@ function buildCard(b) {
     ? '<button class="btn btn-gray" disabled>&#x23F3; Install...</button>'
     : '<button class="btn btn-purple" onclick="openApkSelector(\''+did+'\')"'+(!online?' disabled title="Box hors ligne"':'')+'>&#x1F4E6; Installer APK</button>';
 
+  var pingPending = !!b.ping;
+  var btnPing = pingPending
+    ? '<button class="btn btn-gray" disabled>&#x23F3; Ping...</button>'
+    : '<button class="btn btn-gray" onclick="pingBox(\''+did+'\')" title="V\u00e9rifier la connexion instantan\u00e9ment">&#x1F4E1; Ping</button>';
+
   return '<div class="box-card '+cardCls+'">'
     +'<div class="card-header"><div class="online-dot '+dotCls+'"></div><div class="card-label">'+esc(b.label||b.device_id)+'</div>'+badge+'</div>'
     +'<div class="info-rows">'
@@ -435,7 +440,7 @@ function buildCard(b) {
     +'<div class="card-actions">'
       +btnBlock+btnPause+btnReboot+btnMsg+btnNote
       +'<br style="width:100%;height:0;flex-basis:100%;border:0;margin:2px 0">'
-      +btnScreenshot+btnApk+btnDel
+      +btnScreenshot+btnApk+btnPing+btnDel
     +'</div>'
   +'</div>';
 }
@@ -484,6 +489,26 @@ async function requestScreenshot(id) {
       loadBoxes();
     }
   }, 30000);
+}
+
+/** Ping instantané — vérifie la connexion via WebSocket Realtime sur la box */
+async function pingBox(id) {
+  await patchBox(id, { ping: true });
+  showToast('&#x1F4E1; Ping envoy\u00e9...');
+  loadBoxes();
+  // Timeout 10s : si la box ne répond pas → considérer hors ligne
+  setTimeout(async function() {
+    var r = await api('boxes?select=device_id,ping&device_id=eq.'+encodeURIComponent(id));
+    var boxes = await r.json();
+    if (boxes && boxes[0] && boxes[0].ping) {
+      await patchBox(id, { ping: false });
+      showToast('\u26A0\uFE0F Ping : pas de r\u00e9ponse (box hors ligne ?)', true);
+      loadBoxes();
+    } else {
+      showToast('\u2705 Pong re\u00e7u \u2014 box en ligne !');
+      loadBoxes();
+    }
+  }, 10000);
 }
 
 /** Afficher le screenshot en plein écran */
