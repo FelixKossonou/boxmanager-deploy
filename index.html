@@ -243,25 +243,20 @@
       <div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>
     </div>
     <div class="apk-upload-section">
-      <p style="color:var(--text2);font-size:.85rem;margin-bottom:10px;">&#x2795; Ajouter un APK tiers (VLC, Kodi...) :</p>
+      <p style="color:var(--text2);font-size:.85rem;margin-bottom:10px;">&#x2795; Ajouter un APK :</p>
       <div class="apk-upload-row">
-        <input type="text" id="apkNameInput" placeholder="Nom obligatoire (ex: VLC, Kodi, Netflix...)">
+        <input type="text" id="apkNameInput" placeholder="Nom (ex: VLC, Kodi...) — vide = mise &#xe0; jour BoxManager"
+               oninput="onApkNameInput()">
       </div>
-      <p id="apkNameError" style="color:var(--red);font-size:.8rem;margin-bottom:6px;display:none">&#x26A0;&#xFE0F; Le nom est obligatoire pour un APK tiers</p>
+      <p id="apkNameWarning" style="color:var(--yellow);font-size:.8rem;margin-bottom:6px;display:none">
+        &#x26A0;&#xFE0F; Nom vide = remplacement de BoxManager principal
+      </p>
       <input type="file" id="apkFile" accept=".apk" onchange="onApkSelected()">
       <div class="progress-bar" id="apkProgress"><div class="progress-fill" id="apkProgressFill" style="width:0%"></div></div>
-      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;">
-        <p style="color:var(--text2);font-size:.85rem;margin-bottom:8px;">&#x1F504; Mettre &#xe0; jour BoxManager (APK principal) :</p>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input type="file" id="bmUpdateFile" accept=".apk" onchange="onBmUpdateSelected()" style="flex:1">
-          <button class="btn btn-green" id="bmUpdateBtn" onclick="uploadBoxManagerUpdate()" disabled>&#x2B06;&#xFE0F; Mettre &#xe0; jour</button>
-        </div>
-        <div class="progress-bar" id="bmProgress"><div class="progress-fill" id="bmProgressFill" style="width:0%"></div></div>
-      </div>
     </div>
     <div class="modal-btns">
       <button class="btn btn-gray" onclick="closeModal('apkLibraryModal')">Fermer</button>
-      <button class="btn btn-purple" id="apkUploadBtn" onclick="uploadApkFile()" disabled>&#x2B06;&#xFE0F; Uploader APK tiers</button>
+      <button class="btn btn-purple" id="apkUploadBtn" onclick="uploadApkFile()" disabled>&#x2B06;&#xFE0F; Uploader</button>
     </div>
   </div>
 </div>
@@ -534,10 +529,7 @@ async function openApkLibrary() {
   document.getElementById('apkFile').value = '';
   document.getElementById('apkUploadBtn').disabled = true;
   document.getElementById('apkProgress').classList.remove('active');
-  document.getElementById('apkNameError').style.display = 'none';
-  document.getElementById('bmUpdateFile').value = '';
-  document.getElementById('bmUpdateBtn').disabled = true;
-  document.getElementById('bmProgress').classList.remove('active');
+  document.getElementById('apkNameWarning').style.display = 'none';
   openModal('apkLibraryModal');
   await refreshApkLibrary();
 }
@@ -617,35 +609,36 @@ async function confirmPushApk(idx) {
 
 function onApkSelected() {
   var f = document.getElementById('apkFile').files[0];
+  document.getElementById('apkUploadBtn').disabled = !f;
+  onApkNameInput(); // mettre à jour l'avertissement
+}
+
+function onApkNameInput() {
+  var f    = document.getElementById('apkFile').files[0];
   var name = document.getElementById('apkNameInput').value.trim();
-  document.getElementById('apkUploadBtn').disabled = !f || !name;
+  var warn = document.getElementById('apkNameWarning');
+  // Avertissement visible seulement si fichier sélectionné ET nom vide
+  warn.style.display = (f && !name) ? 'block' : 'none';
+  document.getElementById('apkUploadBtn').disabled = !f;
 }
 
-function onBmUpdateSelected() {
-  var f = document.getElementById('bmUpdateFile').files[0];
-  document.getElementById('bmUpdateBtn').disabled = !f;
-}
-
-/** Uploader un APK TIERS (nom obligatoire) */
+/** Uploader un APK dans Supabase Storage */
 async function uploadApkFile() {
-  var file = document.getElementById('apkFile').files[0];
+  var file    = document.getElementById('apkFile').files[0];
   var rawName = document.getElementById('apkNameInput').value.trim();
-  var errEl = document.getElementById('apkNameError');
   if (!file) return;
-  if (!rawName) {
-    errEl.style.display = 'block';
-    setTimeout(function(){ errEl.style.display='none'; }, 3000);
-    return;
-  }
-  errEl.style.display = 'none';
-  var filename = rawName.toLowerCase().replace(/[^a-z0-9._-]/g, '-').replace(/-+/g,'-') + '.apk';
-  // Sécurité : jamais écraser boxmanager-latest.apk depuis ce bouton
+
+  var filename = rawName
+    ? rawName.toLowerCase().replace(/[^a-z0-9._-]/g, '-').replace(/-+/g, '-') + '.apk'
+    : 'boxmanager-latest.apk';
+
+  // Confirmation si remplacement de BoxManager
   if (filename === 'boxmanager-latest.apk') {
-    showToast('\u26A0\uFE0F Utilisez la section "Mettre \u00e0 jour BoxManager" pour \u00e7a', true);
-    return;
+    if (!confirm('\u26A0\uFE0F Cet APK va remplacer BoxManager principal.\nConfirmer ?')) return;
   }
-  var btn = document.getElementById('apkUploadBtn');
-  var bar = document.getElementById('apkProgress');
+
+  var btn  = document.getElementById('apkUploadBtn');
+  var bar  = document.getElementById('apkProgress');
   var fill = document.getElementById('apkProgressFill');
   btn.disabled = true; btn.textContent = 'Upload...';
   bar.classList.add('active'); fill.style.width = '10%';
@@ -653,53 +646,25 @@ async function uploadApkFile() {
     var r = await storageUpload('apk/'+filename, file, 'application/vnd.android.package-archive');
     fill.style.width = '100%';
     if (r.ok) {
+      if (filename === 'boxmanager-latest.apk') {
+        lastApkUrl = SUPABASE_URL+'/storage/v1/object/public/apk/boxmanager-latest.apk';
+        localStorage.setItem('bm_last_apk_url', lastApkUrl);
+      }
       showToast('\u2705 '+filename+' upload\u00e9 !');
-      btn.textContent = '\u2B06\uFE0F Uploader APK tiers';
+      btn.textContent = '\u2B06\uFE0F Uploader';
       document.getElementById('apkNameInput').value = '';
       document.getElementById('apkFile').value = '';
+      document.getElementById('apkNameWarning').style.display = 'none';
       btn.disabled = true;
       await refreshApkLibrary();
     } else {
       var err = await r.text();
       showToast('Erreur upload: '+err, true);
-      btn.textContent = '\u2B06\uFE0F Uploader APK tiers'; btn.disabled = false;
+      btn.textContent = '\u2B06\uFE0F Uploader'; btn.disabled = false;
     }
   } catch(e) {
     showToast('Erreur: '+e.message, true);
-    btn.textContent = '\u2B06\uFE0F Uploader APK tiers'; btn.disabled = false;
-  }
-  setTimeout(function(){ bar.classList.remove('active'); fill.style.width='0%'; }, 1000);
-}
-
-/** Mettre à jour BoxManager (écrase boxmanager-latest.apk) — section dédiée */
-async function uploadBoxManagerUpdate() {
-  var file = document.getElementById('bmUpdateFile').files[0];
-  if (!file) return;
-  if (!confirm('\u26A0\uFE0F Confirmer la mise \u00e0 jour de BoxManager ?\n\nCet APK remplacera l\'application principale sur toutes les boxes lors de la prochaine MàJ.')) return;
-  var btn = document.getElementById('bmUpdateBtn');
-  var bar = document.getElementById('bmProgress');
-  var fill = document.getElementById('bmProgressFill');
-  btn.disabled = true; btn.textContent = 'Upload...';
-  bar.classList.add('active'); fill.style.width = '10%';
-  try {
-    var r = await storageUpload('apk/boxmanager-latest.apk', file, 'application/vnd.android.package-archive');
-    fill.style.width = '100%';
-    if (r.ok) {
-      lastApkUrl = SUPABASE_URL+'/storage/v1/object/public/apk/boxmanager-latest.apk';
-      localStorage.setItem('bm_last_apk_url', lastApkUrl);
-      showToast('\u2705 BoxManager mis \u00e0 jour !');
-      btn.textContent = '\u2705 Mis \u00e0 jour !';
-      document.getElementById('bmUpdateFile').value = '';
-      btn.disabled = true;
-      await refreshApkLibrary();
-    } else {
-      var err = await r.text();
-      showToast('Erreur: '+err, true);
-      btn.textContent = '\u2B06\uFE0F Mettre \u00e0 jour'; btn.disabled = false;
-    }
-  } catch(e) {
-    showToast('Erreur: '+e.message, true);
-    btn.textContent = '\u2B06\uFE0F Mettre \u00e0 jour'; btn.disabled = false;
+    btn.textContent = '\u2B06\uFE0F Uploader'; btn.disabled = false;
   }
   setTimeout(function(){ bar.classList.remove('active'); fill.style.width='0%'; }, 1000);
 }
