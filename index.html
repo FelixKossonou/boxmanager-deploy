@@ -124,6 +124,17 @@
   .progress-bar.active { display: block; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
 
+  /* ── APK Library ── */
+  .apk-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; margin-bottom: 12px; }
+  .apk-list-item { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .apk-list-item.special { border-color: var(--purple); }
+  .apk-item-name { flex: 1; font-weight: 600; font-size: .88rem; }
+  .apk-item-size { font-size: .75rem; color: var(--text2); white-space: nowrap; }
+  .apk-select-item { cursor: pointer; transition: border-color .2s; }
+  .apk-select-item:hover { border-color: var(--purple); background: #1e1a2e; }
+  .apk-upload-section { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; }
+  .apk-upload-row { display: flex; gap: 8px; margin-bottom: 10px; }
+
   /* ── Toast ── */
   #toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--green); border-radius: 10px; padding: 12px 20px; color: var(--text); font-size: .9rem; z-index: 2000; transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px; }
   #toast.show { transform: translateY(0); opacity: 1; }
@@ -172,7 +183,7 @@
 <div class="toolbar">
   <input type="text" class="search-box" id="searchInput" placeholder="Rechercher par label, mod&#xe8;le, MAC..." oninput="renderBoxes()">
   <button class="btn btn-green" onclick="loadBoxes()">&#x1F504; Actualiser</button>
-  <button class="btn btn-purple" onclick="openApkUploadModal()">&#x1F4E6; Upload APK</button>
+  <button class="btn btn-purple" onclick="openApkLibrary()">&#x1F4DA; Biblioth&#xe8;que APK</button>
 </div>
 
 <div class="boxes-grid" id="boxesGrid"></div>
@@ -224,17 +235,38 @@
   </div>
 </div>
 
-<!-- APK Upload -->
-<div class="modal-overlay" id="apkModal">
-  <div class="modal">
-    <h3>&#x1F4E6; Upload APK</h3>
-    <p style="color:var(--text2);font-size:.85rem;margin-bottom:12px;">S&#xe9;lectionnez l'APK BoxManager &#xe0; d&#xe9;ployer sur les boxes.</p>
-    <input type="file" id="apkFile" accept=".apk" onchange="onApkSelected()">
-    <div class="progress-bar" id="apkProgress"><div class="progress-fill" id="apkProgressFill" style="width:0%"></div></div>
-    <div class="apk-url-display" id="apkUrlDisplay" style="display:none"></div>
+<!-- APK Library -->
+<div class="modal-overlay" id="apkLibraryModal">
+  <div class="modal modal-wide">
+    <h3>&#x1F4DA; Biblioth&#xe8;que APK</h3>
+    <div class="apk-list" id="apkLibraryList">
+      <div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>
+    </div>
+    <div class="apk-upload-section">
+      <p style="color:var(--text2);font-size:.85rem;margin-bottom:10px;">&#x2795; Ajouter un APK :</p>
+      <div class="apk-upload-row">
+        <input type="text" id="apkNameInput" placeholder="Nom (ex: VLC, Kodi, Netflix...) — vide = BoxManager">
+      </div>
+      <input type="file" id="apkFile" accept=".apk" onchange="onApkSelected()">
+      <div class="progress-bar" id="apkProgress"><div class="progress-fill" id="apkProgressFill" style="width:0%"></div></div>
+    </div>
     <div class="modal-btns">
-      <button class="btn btn-gray" onclick="closeModal('apkModal')">Fermer</button>
+      <button class="btn btn-gray" onclick="closeModal('apkLibraryModal')">Fermer</button>
       <button class="btn btn-purple" id="apkUploadBtn" onclick="uploadApkFile()" disabled>&#x2B06;&#xFE0F; Uploader</button>
+    </div>
+  </div>
+</div>
+
+<!-- APK Selector (par box) -->
+<div class="modal-overlay" id="apkSelectModal">
+  <div class="modal">
+    <h3>&#x1F4E6; Installer un APK</h3>
+    <p style="color:var(--text2);font-size:.85rem;margin-bottom:12px;">Choisissez l'APK &#xe0; installer sur cette box :</p>
+    <div class="apk-list" id="apkSelectList">
+      <div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-gray" onclick="closeModal('apkSelectModal')">Annuler</button>
     </div>
   </div>
 </div>
@@ -387,8 +419,8 @@ function buildCard(b) {
     : '<button class="btn btn-gray" onclick="requestScreenshot(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4F7; Screenshot</button>';
 
   var btnApk = b.install_apk
-    ? '<button class="btn btn-gray" disabled>&#x23F3; MàJ...</button>'
-    : '<button class="btn btn-purple" onclick="pushApk(\''+did+'\')"'+(!online?' disabled title="Box hors ligne"':'')+'>&#x1F4E6; MàJ APK</button>';
+    ? '<button class="btn btn-gray" disabled>&#x23F3; Install...</button>'
+    : '<button class="btn btn-purple" onclick="openApkSelector(\''+did+'\')"'+(!online?' disabled title="Box hors ligne"':'')+'>&#x1F4E6; Installer APK</button>';
 
   return '<div class="box-card '+cardCls+'">'
     +'<div class="card-header"><div class="online-dot '+dotCls+'"></div><div class="card-label">'+esc(b.label||b.device_id)+'</div>'+badge+'</div>'
@@ -450,36 +482,110 @@ function viewScreenshot(url, label, updatedAt) {
   openModal('screenshotModal');
 }
 
-/** Pousser l'APK vers une box spécifique */
-async function pushApk(id) {
-  await patchBox(id, { install_apk: true, install_apk_url: lastApkUrl });
-  showToast('&#x1F4E6; Installation APK en cours...');
+// ══ APK LIBRARY ═══════════════════════════════════════════════════════
+var apkLibraryFiles = [];
+
+async function listApks() {
+  var r = await fetch(SUPABASE_URL+'/storage/v1/object/list/apk', {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prefix: '', limit: 100, offset: 0, sortBy: { column: 'name', order: 'asc' } })
+  });
+  if (!r.ok) return [];
+  return r.json();
+}
+
+function formatBytes(b) {
+  if (!b) return '';
+  if (b < 1024*1024) return (b/1024).toFixed(0)+' KB';
+  return (b/1024/1024).toFixed(1)+' MB';
+}
+
+function apkDisplayName(filename) {
+  if (filename === 'boxmanager-latest.apk') return '\uD83D\uDCE6 BoxManager (principal)';
+  return filename.replace(/\.apk$/i, '');
+}
+
+async function openApkLibrary() {
+  document.getElementById('apkNameInput').value = '';
+  document.getElementById('apkFile').value = '';
+  document.getElementById('apkUploadBtn').disabled = true;
+  document.getElementById('apkProgress').classList.remove('active');
+  openModal('apkLibraryModal');
+  await refreshApkLibrary();
+}
+
+async function refreshApkLibrary() {
+  var list = document.getElementById('apkLibraryList');
+  list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>';
+  var files = await listApks();
+  if (!files || files.length === 0) {
+    list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Aucun APK dans la biblioth\u00e8que.</div>';
+    return;
+  }
+  list.innerHTML = files.map(function(f) {
+    var isMain = f.name === 'boxmanager-latest.apk';
+    var size = f.metadata && f.metadata.size ? formatBytes(f.metadata.size) : '';
+    return '<div class="apk-list-item'+(isMain?' special':'')+'"><span>&#x1F4F1;</span>'
+      +'<span class="apk-item-name">'+esc(apkDisplayName(f.name))+'</span>'
+      +(size ? '<span class="apk-item-size">'+size+'</span>' : '')
+      +'<button class="btn btn-red" style="padding:4px 8px;font-size:.72rem" onclick="deleteApkFromStorage(\''+ea(f.name)+'\')">&#x1F5D1;&#xFE0F;</button>'
+      +'</div>';
+  }).join('');
+}
+
+async function deleteApkFromStorage(name) {
+  if (!confirm('Supprimer \u00ab '+name+' \u00bb ?')) return;
+  await fetch(SUPABASE_URL+'/storage/v1/object/apk/'+encodeURIComponent(name), {
+    method: 'DELETE',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY }
+  });
+  showToast('APK supprim\u00e9');
+  await refreshApkLibrary();
+}
+
+/** Ouvrir le sélecteur d'APK pour une box */
+async function openApkSelector(id) {
+  activeId = id;
+  var list = document.getElementById('apkSelectList');
+  list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>';
+  openModal('apkSelectModal');
+  apkLibraryFiles = await listApks() || [];
+  if (apkLibraryFiles.length === 0) {
+    list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Aucun APK disponible. Ouvrez la Biblioth\u00e8que APK pour en ajouter.</div>';
+    return;
+  }
+  list.innerHTML = apkLibraryFiles.map(function(f, i) {
+    var isMain = f.name === 'boxmanager-latest.apk';
+    return '<div class="apk-list-item apk-select-item'+(isMain?' special':'')
+      +'" onclick="confirmPushApk('+i+')">'
+      +'<span>&#x1F4F1;</span>'
+      +'<span class="apk-item-name">'+esc(apkDisplayName(f.name))+'</span>'
+      +'<span style="color:var(--purple);font-size:.8rem;font-weight:600">Installer &#x25B6;</span>'
+      +'</div>';
+  }).join('');
+}
+
+/** Confirmer et envoyer l'installation d'un APK */
+async function confirmPushApk(idx) {
+  var f = apkLibraryFiles[idx];
+  if (!f) return;
+  var url = SUPABASE_URL+'/storage/v1/object/public/apk/'+f.name;
+  var name = apkDisplayName(f.name);
+  closeModal('apkSelectModal');
+  await patchBox(activeId, { install_apk: true, install_apk_url: url });
+  showToast('&#x1F4E6; Installation de '+name+' en cours...');
   loadBoxes();
-  // Timeout 3min : si la box n'a pas répondu, reset install_apk
+  var id = activeId;
   setTimeout(async function() {
     var r = await api('boxes?select=device_id,install_apk&device_id=eq.'+encodeURIComponent(id));
     var boxes = await r.json();
     if (boxes && boxes[0] && boxes[0].install_apk) {
       await patchBox(id, { install_apk: false });
-      showToast('&#x26A0;&#xFE0F; MàJ APK : pas de réponse (vieille version ?)', true);
+      showToast('\u26A0\uFE0F '+name+' : pas de r\u00e9ponse (vieille version ?)', true);
       loadBoxes();
     }
   }, 3 * 60 * 1000);
-}
-
-/** Ouvrir le modal d'upload APK */
-function openApkUploadModal() {
-  document.getElementById('apkFile').value = '';
-  document.getElementById('apkUploadBtn').disabled = true;
-  var disp = document.getElementById('apkUrlDisplay');
-  if (lastApkUrl) {
-    disp.style.display = 'block';
-    disp.textContent = '&#x2705; APK actuel: ' + lastApkUrl;
-  } else {
-    disp.style.display = 'none';
-  }
-  document.getElementById('apkProgress').classList.remove('active');
-  openModal('apkModal');
 }
 
 function onApkSelected() {
@@ -487,40 +593,41 @@ function onApkSelected() {
   document.getElementById('apkUploadBtn').disabled = !f;
 }
 
-/** Uploader l'APK dans Supabase Storage */
+/** Uploader un APK dans Supabase Storage */
 async function uploadApkFile() {
   var file = document.getElementById('apkFile').files[0];
+  var rawName = document.getElementById('apkNameInput').value.trim();
   if (!file) return;
+  var filename = rawName
+    ? rawName.toLowerCase().replace(/[^a-z0-9._-]/g, '-').replace(/-+/g,'-') + '.apk'
+    : 'boxmanager-latest.apk';
   var btn = document.getElementById('apkUploadBtn');
   var bar = document.getElementById('apkProgress');
   var fill = document.getElementById('apkProgressFill');
-  var disp = document.getElementById('apkUrlDisplay');
-
-  btn.disabled = true;
-  btn.textContent = 'Upload...';
-  bar.classList.add('active');
-  fill.style.width = '10%';
-
+  btn.disabled = true; btn.textContent = 'Upload...';
+  bar.classList.add('active'); fill.style.width = '10%';
   try {
-    var r = await storageUpload('apk/boxmanager-latest.apk', file, 'application/vnd.android.package-archive');
+    var r = await storageUpload('apk/'+filename, file, 'application/vnd.android.package-archive');
     fill.style.width = '100%';
     if (r.ok) {
-      lastApkUrl = SUPABASE_URL + '/storage/v1/object/public/apk/boxmanager-latest.apk';
-      localStorage.setItem('bm_last_apk_url', lastApkUrl);
-      disp.style.display = 'block';
-      disp.textContent = '\u2705 Upload\u00e9: ' + lastApkUrl;
-      showToast('\u2705 APK upload\u00e9 — pr\u00eat \u00e0 d\u00e9ployer');
+      if (filename === 'boxmanager-latest.apk') {
+        lastApkUrl = SUPABASE_URL+'/storage/v1/object/public/apk/boxmanager-latest.apk';
+        localStorage.setItem('bm_last_apk_url', lastApkUrl);
+      }
+      showToast('\u2705 '+filename+' upload\u00e9 !');
       btn.textContent = '\u2705 Upload\u00e9 !';
+      document.getElementById('apkNameInput').value = '';
+      document.getElementById('apkFile').value = '';
+      btn.disabled = true;
+      await refreshApkLibrary();
     } else {
       var err = await r.text();
-      showToast('Erreur upload: ' + err, true);
-      btn.textContent = '\u2B06\uFE0F Uploader';
-      btn.disabled = false;
+      showToast('Erreur upload: '+err, true);
+      btn.textContent = '\u2B06\uFE0F Uploader'; btn.disabled = false;
     }
   } catch(e) {
-    showToast('Erreur: ' + e.message, true);
-    btn.textContent = '\u2B06\uFE0F Uploader';
-    btn.disabled = false;
+    showToast('Erreur: '+e.message, true);
+    btn.textContent = '\u2B06\uFE0F Uploader'; btn.disabled = false;
   }
   setTimeout(function(){ bar.classList.remove('active'); fill.style.width='0%'; }, 1000);
 }
