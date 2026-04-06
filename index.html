@@ -431,7 +431,8 @@ async function requestScreenshot(id) {
   loadBoxes();
   // Timeout 30s : reset si pas de réponse
   setTimeout(async function() {
-    var boxes = await supa('boxes?select=device_id,request_screenshot&device_id=eq.'+id).then(function(r){return r.json();});
+    var r = await api('boxes?select=device_id,request_screenshot&device_id=eq.'+encodeURIComponent(id));
+    var boxes = await r.json();
     if (boxes && boxes[0] && boxes[0].request_screenshot) {
       await patchBox(id, { request_screenshot: false });
       loadBoxes();
@@ -456,7 +457,8 @@ async function pushApk(id) {
   loadBoxes();
   // Timeout 3min : si la box n'a pas répondu, reset install_apk
   setTimeout(async function() {
-    var boxes = await supa('boxes?select=device_id,install_apk&device_id=eq.'+id).then(function(r){return r.json();});
+    var r = await api('boxes?select=device_id,install_apk&device_id=eq.'+encodeURIComponent(id));
+    var boxes = await r.json();
     if (boxes && boxes[0] && boxes[0].install_apk) {
       await patchBox(id, { install_apk: false });
       showToast('&#x26A0;&#xFE0F; MàJ APK : pas de réponse (vieille version ?)', true);
