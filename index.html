@@ -452,7 +452,21 @@ async function blockBox(id)   { await patchBox(id,{blocked:true});  showToast('B
 async function unblockBox(id) { await patchBox(id,{blocked:false}); showToast('Box d\u00e9bloqu\u00e9e'); loadBoxes(); }
 async function pauseBox(id)   { await patchBox(id,{paused:true});   showToast('Box mise en pause');       loadBoxes(); }
 async function resumeBox(id)  { await patchBox(id,{paused:false});  showToast('Box reprise');             loadBoxes(); }
-async function rebootBox(id)  { await patchBox(id,{reboot:true});   showToast('Commande reboot envoy\u00e9e'); loadBoxes(); }
+async function rebootBox(id) {
+  await patchBox(id, { reboot: true });
+  showToast('&#x1F504; Reboot envoy\u00e9...');
+  loadBoxes();
+  // Timeout 2min : reset si la box ne redémarre pas
+  setTimeout(async function() {
+    var r = await api('boxes?select=device_id,reboot&device_id=eq.'+encodeURIComponent(id));
+    var boxes = await r.json();
+    if (boxes && boxes[0] && boxes[0].reboot) {
+      await patchBox(id, { reboot: false });
+      showToast('\u26A0\uFE0F Reboot : pas de r\u00e9ponse', true);
+      loadBoxes();
+    }
+  }, 2 * 60 * 1000);
+}
 
 // ══ NOUVELLES ACTIONS ═════════════════════════════════════════════════
 
