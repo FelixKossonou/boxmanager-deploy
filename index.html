@@ -425,7 +425,7 @@ function buildCard(b) {
   var pingPending = !!b.ping;
   var btnPing = pingPending
     ? '<button class="btn btn-gray" disabled>&#x23F3; Ping...</button>'
-    : '<button class="btn btn-gray" onclick="pingBox(\''+did+'\')" title="V\u00e9rifier la connexion instantan\u00e9ment">&#x1F4E1; Ping</button>';
+    : '<button class="btn btn-gray" onclick="pingBox(\''+did+'\')"'+(!online?' disabled title="Box hors ligne"':' title="V\u00e9rifier la connexion"')+'>&#x1F4E1; Ping</button>';
 
   return '<div class="box-card '+cardCls+'">'
     +'<div class="card-header"><div class="online-dot '+dotCls+'"></div><div class="card-label">'+esc(b.label||b.device_id)+'</div>'+badge+'</div>'
@@ -496,19 +496,27 @@ async function pingBox(id) {
   await patchBox(id, { ping: true });
   showToast('&#x1F4E1; Ping envoy\u00e9...');
   loadBoxes();
-  // Timeout 10s : si la box ne répond pas → considérer hors ligne
-  setTimeout(async function() {
-    var r = await api('boxes?select=device_id,ping&device_id=eq.'+encodeURIComponent(id));
-    var boxes = await r.json();
-    if (boxes && boxes[0] && boxes[0].ping) {
-      await patchBox(id, { ping: false });
-      showToast('\u26A0\uFE0F Ping : pas de r\u00e9ponse (box hors ligne ?)', true);
-      loadBoxes();
-    } else {
-      showToast('\u2705 Pong re\u00e7u \u2014 box en ligne !');
-      loadBoxes();
-    }
-  }, 10000);
+  // Polling rapide toutes les 1s (max 10s) pour détecter la réponse dès qu'elle arrive
+  var attempts = 0;
+  var pingInterval = setInterval(async function() {
+    attempts++;
+    try {
+      var r = await api('boxes?select=device_id,ping&device_id=eq.'+encodeURIComponent(id));
+      var boxes = await r.json();
+      if (boxes && boxes[0] && !boxes[0].ping) {
+        // Box a répondu → ping:false remis par la box elle-même
+        clearInterval(pingInterval);
+        showToast('\u2705 Pong re\u00e7u \u2014 box en ligne !');
+        loadBoxes();
+      } else if (attempts >= 10) {
+        // Timeout 10s sans réponse
+        clearInterval(pingInterval);
+        await patchBox(id, { ping: false });
+        showToast('\u26A0\uFE0F Ping : pas de r\u00e9ponse (box hors ligne ?)', true);
+        loadBoxes();
+      }
+    } catch(e) { clearInterval(pingInterval); }
+  }, 1000);
 }
 
 /** Afficher le screenshot en plein écran */
