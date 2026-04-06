@@ -364,14 +364,14 @@ function buildCard(b) {
 
   var did = ea(b.device_id);
 
-  // Boutons existants
+  // Boutons — tout grisé si hors ligne sauf Note et Supprimer
   var btnBlock = blocked
-    ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')">&#x1F513; D\u00e9bloquer</button>'
-    : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"'+((!online||paused)?' disabled':'')+'">&#x1F512; Bloquer</button>';
+    ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F513; D\u00e9bloquer</button>'
+    : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"'+((!online||paused)?' disabled':'')+'>&#x1F512; Bloquer</button>';
 
   var btnPause = paused
-    ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')">&#x25B6; Reprendre</button>'
-    : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"'+((!online||blocked)?' disabled':'')+'">&#x23F8; Pause</button>';
+    ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')"'+(!online?' disabled':'')+'>&#x25B6; Reprendre</button>'
+    : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"'+((!online||blocked)?' disabled':'')+'>&#x23F8; Pause</button>';
 
   var btnReboot = rebooting
     ? '<button class="btn" disabled>&#x23F3; Reboot...</button>'
@@ -379,7 +379,7 @@ function buildCard(b) {
 
   var btnMsg  = '<button class="btn btn-gray" onclick="openMsgModal(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4AC; Message</button>';
   var btnNote = '<button class="btn btn-gray" data-cmt="'+esc(b.comment||'')+'" onclick="openCommentModal(\''+did+'\',this.dataset.cmt)">&#x1F4DD; Note</button>';
-  var btnDel  = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"'+((blocked||paused)?' disabled':'')+'>&#x1F5D1;&#xFE0F;</button>';
+  var btnDel  = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')">&#x1F5D1;&#xFE0F;</button>';
 
   var scrRequesting = !!b.request_screenshot;
   var btnScreenshot = scrRequesting
@@ -429,6 +429,14 @@ async function requestScreenshot(id) {
   await patchBox(id, { request_screenshot: true });
   showToast('&#x1F4F7; Screenshot demand\u00e9...');
   loadBoxes();
+  // Timeout 30s : reset si pas de réponse
+  setTimeout(async function() {
+    var boxes = await supa('boxes?select=device_id,request_screenshot&device_id=eq.'+id).then(function(r){return r.json();});
+    if (boxes && boxes[0] && boxes[0].request_screenshot) {
+      await patchBox(id, { request_screenshot: false });
+      loadBoxes();
+    }
+  }, 30000);
 }
 
 /** Afficher le screenshot en plein écran */
