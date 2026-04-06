@@ -398,11 +398,11 @@ function buildCard(b) {
 
   // Boutons — tout grisé si hors ligne sauf Note et Supprimer
   var btnBlock = blocked
-    ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F513; D\u00e9bloquer</button>'
+    ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')">&#x1F513; D\u00e9bloquer</button>'
     : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"'+((!online||paused)?' disabled':'')+'>&#x1F512; Bloquer</button>';
 
   var btnPause = paused
-    ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')"'+(!online?' disabled':'')+'>&#x25B6; Reprendre</button>'
+    ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')">&#x25B6; Reprendre</button>'
     : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"'+((!online||blocked)?' disabled':'')+'>&#x23F8; Pause</button>';
 
   var btnReboot = rebooting
