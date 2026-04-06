@@ -411,7 +411,7 @@ function buildCard(b) {
 
   var btnMsg  = '<button class="btn btn-gray" onclick="openMsgModal(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4AC; Message</button>';
   var btnNote = '<button class="btn btn-gray" data-cmt="'+esc(b.comment||'')+'" onclick="openCommentModal(\''+did+'\',this.dataset.cmt)">&#x1F4DD; Note</button>';
-  var btnDel  = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"'+(paused?' disabled':'')+'>&#x1F5D1;&#xFE0F;</button>';
+  var btnDel  = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"'+((paused||blocked)?' disabled':'')+'>&#x1F5D1;&#xFE0F;</button>';
 
   var scrRequesting = !!b.request_screenshot;
   var btnScreenshot = scrRequesting
