@@ -339,7 +339,7 @@ async function loadBoxes() {
 
 function isOnline(b) {
   if (!b.last_seen) return false;
-  return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 35;
+  return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 30;
 }
 
 function renderBoxes() {
