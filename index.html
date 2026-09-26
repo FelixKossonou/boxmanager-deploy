@@ -92,9 +92,13 @@
   .mac-value { color: var(--green); font-weight: 700; font-size: .95rem; font-family: 'Courier New', monospace; letter-spacing: 1px; background: #002d1a; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--green); }
   .info-time { color: var(--text2); font-size: .78rem; }
   .apk-badge { font-size: .78rem; background: #1a1a2e; color: var(--blue); border: 1px solid var(--blue); padding: 2px 7px; border-radius: 5px; font-family: monospace; }
+  .location-link { color: var(--green); text-decoration: none; font-size: .82rem; }
+  .location-link:hover { text-decoration: underline; }
+  .location-time { color: var(--text2); font-size: .75rem; margin-left: 4px; }
+
   /* ── Screenshot section ── */
   .screenshot-section { margin-bottom: 12px; }
-  .screenshot-thumb { width: 100%; aspect-ratio: 16/9; object-fit: contain; background: #000; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); transition: border-color .2s; display: block; }
+  .screenshot-thumb { width: 100%; max-height: 90px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); transition: border-color .2s; display: block; }
   .screenshot-thumb:hover { border-color: var(--green); }
   .screenshot-info { font-size: .75rem; color: var(--text2); margin-top: 4px; text-align: right; }
   .screenshot-requesting { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 8px; text-align: center; font-size: .8rem; color: var(--text2); }
@@ -124,17 +128,6 @@
   .progress-bar.active { display: block; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
 
-  /* ── APK Library ── */
-  .apk-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; margin-bottom: 12px; }
-  .apk-list-item { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
-  .apk-list-item.special { border-color: var(--purple); }
-  .apk-item-name { flex: 1; font-weight: 600; font-size: .88rem; }
-  .apk-item-size { font-size: .75rem; color: var(--text2); white-space: nowrap; }
-  .apk-select-item { cursor: pointer; transition: border-color .2s; }
-  .apk-select-item:hover { border-color: var(--purple); background: #1e1a2e; }
-  .apk-upload-section { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; }
-  .apk-upload-row { display: flex; gap: 8px; margin-bottom: 10px; }
-
   /* ── Toast ── */
   #toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--green); border-radius: 10px; padding: 12px 20px; color: var(--text); font-size: .9rem; z-index: 2000; transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px; }
   #toast.show { transform: translateY(0); opacity: 1; }
@@ -149,14 +142,17 @@
     <div class="login-logo">&#x1F4E6;</div>
     <h2>BoxManager</h2>
     <p>Panneau d'administration</p>
+    <input type="email" class="login-input" id="emailInput" placeholder="Email..."
+           autocomplete="username" spellcheck="false"
+           onkeydown="if(event.key==='Enter') doLogin()">
     <div class="input-wrap">
       <input type="password" class="login-input" id="passwordInput"
              placeholder="Mot de passe..."
-             onkeydown="if(event.key==='Enter') checkPassword()">
+             onkeydown="if(event.key==='Enter') doLogin()">
       <button class="eye-btn" onclick="togglePwd()" id="eyeBtn">&#x1F441;&#xFE0F;</button>
     </div>
-    <button class="login-btn" onclick="checkPassword()">Se connecter</button>
-    <p class="login-error" id="loginError">&#x274C; Mot de passe incorrect</p>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Se connecter</button>
+    <p class="login-error" id="loginError">&#x274C; Identifiants incorrects</p>
   </div>
 </div>
 
@@ -183,7 +179,7 @@
 <div class="toolbar">
   <input type="text" class="search-box" id="searchInput" placeholder="Rechercher par label, mod&#xe8;le, MAC..." oninput="renderBoxes()">
   <button class="btn btn-green" onclick="loadBoxes()">&#x1F504; Actualiser</button>
-  <button class="btn btn-purple" onclick="openApkLibrary()">&#x1F4DA; Biblioth&#xe8;que APK</button>
+  <button class="btn btn-purple" onclick="openApkUploadModal()">&#x1F4E6; Upload APK</button>
 </div>
 
 <div class="boxes-grid" id="boxesGrid"></div>
@@ -235,42 +231,17 @@
   </div>
 </div>
 
-<!-- APK Library -->
-<div class="modal-overlay" id="apkLibraryModal">
-  <div class="modal modal-wide">
-    <h3>&#x1F4DA; Biblioth&#xe8;que APK</h3>
-    <div class="apk-list" id="apkLibraryList">
-      <div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>
-    </div>
-    <div class="apk-upload-section">
-      <p style="color:var(--text2);font-size:.85rem;margin-bottom:10px;">&#x2795; Ajouter un APK :</p>
-      <div class="apk-upload-row">
-        <input type="text" id="apkNameInput" placeholder="Nom (ex: VLC, Kodi...) — vide = mise &#xe0; jour BoxManager"
-               oninput="onApkNameInput()">
-      </div>
-      <p id="apkNameWarning" style="color:var(--yellow);font-size:.8rem;margin-bottom:6px;display:none">
-        &#x26A0;&#xFE0F; Nom vide = remplacement de BoxManager principal
-      </p>
-      <input type="file" id="apkFile" accept=".apk" onchange="onApkSelected()">
-      <div class="progress-bar" id="apkProgress"><div class="progress-fill" id="apkProgressFill" style="width:0%"></div></div>
-    </div>
-    <div class="modal-btns">
-      <button class="btn btn-gray" onclick="closeModal('apkLibraryModal')">Fermer</button>
-      <button class="btn btn-purple" id="apkUploadBtn" onclick="uploadApkFile()" disabled>&#x2B06;&#xFE0F; Uploader</button>
-    </div>
-  </div>
-</div>
-
-<!-- APK Selector (par box) -->
-<div class="modal-overlay" id="apkSelectModal">
+<!-- APK Upload -->
+<div class="modal-overlay" id="apkModal">
   <div class="modal">
-    <h3>&#x1F4E6; Installer un APK</h3>
-    <p style="color:var(--text2);font-size:.85rem;margin-bottom:12px;">Choisissez l'APK &#xe0; installer sur cette box :</p>
-    <div class="apk-list" id="apkSelectList">
-      <div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>
-    </div>
+    <h3>&#x1F4E6; Upload APK</h3>
+    <p style="color:var(--text2);font-size:.85rem;margin-bottom:12px;">S&#xe9;lectionnez l'APK BoxManager &#xe0; d&#xe9;ployer sur les boxes.</p>
+    <input type="file" id="apkFile" accept=".apk" onchange="onApkSelected()">
+    <div class="progress-bar" id="apkProgress"><div class="progress-fill" id="apkProgressFill" style="width:0%"></div></div>
+    <div class="apk-url-display" id="apkUrlDisplay" style="display:none"></div>
     <div class="modal-btns">
-      <button class="btn btn-gray" onclick="closeModal('apkSelectModal')">Annuler</button>
+      <button class="btn btn-gray" onclick="closeModal('apkModal')">Fermer</button>
+      <button class="btn btn-purple" id="apkUploadBtn" onclick="uploadApkFile()" disabled>&#x2B06;&#xFE0F; Uploader</button>
     </div>
   </div>
 </div>
@@ -280,51 +251,100 @@
 
 <script>
 // ══ AUTH ══════════════════════════════════════════════════════════════
-const PASS_HASH = 'ccd519bb6954404cd8bf5916a4d6c20fc2485202e4dd084314b1a45483959939';
+// AUTH (Supabase Auth email/mot de passe)
+// Le panel s'authentifie via Supabase Auth. Le JWT utilisateur (role
+// "authenticated") est envoye dans Authorization sur chaque appel, ce qui
+// permet aux policies RLS de distinguer l'admin (panel) de la box (anon).
+var BM_SESSION = null;
 
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+function loadSession() {
+  try { var raw = sessionStorage.getItem('bm_session'); BM_SESSION = raw ? JSON.parse(raw) : null; }
+  catch(e) { BM_SESSION = null; }
+  return BM_SESSION;
 }
+function saveSession(s) { BM_SESSION = s; try { sessionStorage.setItem('bm_session', JSON.stringify(s)); } catch(e) {} }
+function clearSession() { BM_SESSION = null; try { sessionStorage.removeItem('bm_session'); } catch(e) {} }
+function authToken() { return (BM_SESSION && BM_SESSION.access_token) ? BM_SESSION.access_token : SUPABASE_KEY; }
+
+function showApp()   { document.getElementById('loginScreen').style.display='none'; document.getElementById('mainApp').style.display='block'; }
+function showLogin() { document.getElementById('mainApp').style.display='none';     document.getElementById('loginScreen').style.display='flex'; }
+function showLoginError(msg) { var e=document.getElementById('loginError'); e.textContent='\u274C '+msg; e.style.display='block'; }
+
 function togglePwd() {
   var i = document.getElementById('passwordInput'), b = document.getElementById('eyeBtn');
   if (i.type === 'password') { i.type = 'text'; b.textContent = '\uD83D\uDE48'; }
   else { i.type = 'password'; b.innerHTML = '&#x1F441;&#xFE0F;'; }
 }
-async function checkPassword() {
-  const h = await sha256(document.getElementById('passwordInput').value);
-  if (h === PASS_HASH) {
-    sessionStorage.setItem('bm_auth','1');
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    init();
-  } else {
-    var e = document.getElementById('loginError');
-    e.style.display = 'block';
-    document.getElementById('passwordInput').value = '';
-    setTimeout(function(){ e.style.display='none'; }, 3000);
-  }
+
+async function doLogin() {
+  var email = (document.getElementById('emailInput').value||'').trim();
+  var pwd   = document.getElementById('passwordInput').value||'';
+  var btn   = document.getElementById('loginBtn');
+  document.getElementById('loginError').style.display='none';
+  if (!email || !pwd) { showLoginError('Entrez email et mot de passe'); return; }
+  btn.disabled = true; btn.textContent = 'Connexion...';
+  try {
+    var r = await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password', {
+      method:'POST', headers:{ 'apikey': SUPABASE_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify({ email: email, password: pwd })
+    });
+    var data = await r.json().catch(function(){ return {}; });
+    if (!r.ok || !data.access_token) { showLoginError('Identifiants incorrects'); return; }
+    saveSession({ access_token: data.access_token, refresh_token: data.refresh_token,
+                  expires_at: Date.now() + ((data.expires_in||3600)*1000) });
+    document.getElementById('passwordInput').value='';
+    showApp(); init();
+  } catch(e) { showLoginError('Erreur r\u00e9seau'); }
+  finally { btn.disabled = false; btn.textContent = 'Se connecter'; }
 }
-if (sessionStorage.getItem('bm_auth') === '1') {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
+
+async function refreshSession() {
+  if (!BM_SESSION || !BM_SESSION.refresh_token) return false;
+  try {
+    var r = await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token', {
+      method:'POST', headers:{ 'apikey': SUPABASE_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify({ refresh_token: BM_SESSION.refresh_token })
+    });
+    var data = await r.json().catch(function(){ return {}; });
+    if (!r.ok || !data.access_token) { clearSession(); return false; }
+    saveSession({ access_token: data.access_token, refresh_token: data.refresh_token,
+                  expires_at: Date.now() + ((data.expires_in||3600)*1000) });
+    return true;
+  } catch(e) { return false; }
 }
+
+function forceLogout() {
+  clearSession();
+  if (typeof refreshTimer !== 'undefined' && refreshTimer) clearInterval(refreshTimer);
+  showLogin();
+  showLoginError('Session expir\u00e9e, reconnectez-vous');
+}
+
+// Restauration de session au chargement
+loadSession();
+if (BM_SESSION && BM_SESSION.access_token) { showApp(); }
 
 // ══ SUPABASE ══════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://ldzroeykznfvcpmeljpq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkenJvZXlrem5mdmNwbWVsanBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTQyOTcsImV4cCI6MjA4ODIzMDI5N30.G49WPMcqCHs5wTGxxCoLPeoqX2wrBA4qCNMNu9vDKBs';
 
-async function api(path, opts) {
+async function api(path, opts, _retried) {
   opts = opts || {};
-  var h = Object.assign({ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json' }, opts.headers||{});
-  return fetch(SUPABASE_URL+'/rest/v1/'+path, Object.assign({}, opts, { headers: h }));
+  if (BM_SESSION && BM_SESSION.expires_at && Date.now() > (BM_SESSION.expires_at - 60000)) { await refreshSession(); }
+  var h = Object.assign({ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+authToken(), 'Content-Type': 'application/json' }, opts.headers||{});
+  var res = await fetch(SUPABASE_URL+'/rest/v1/'+path, Object.assign({}, opts, { headers: h }));
+  if (res.status === 401 && !_retried) { if (await refreshSession()) return api(path, opts, true); forceLogout(); }
+  return res;
 }
-async function storageUpload(path, blob, contentType) {
-  return fetch(SUPABASE_URL+'/storage/v1/object/'+path, {
+async function storageUpload(path, blob, contentType, _retried) {
+  if (BM_SESSION && BM_SESSION.expires_at && Date.now() > (BM_SESSION.expires_at - 60000)) { await refreshSession(); }
+  var res = await fetch(SUPABASE_URL+'/storage/v1/object/'+path, {
     method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': contentType, 'x-upsert': 'true' },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+authToken(), 'Content-Type': contentType, 'x-upsert': 'true' },
     body: blob
   });
+  if (res.status === 401 && !_retried) { if (await refreshSession()) return storageUpload(path, blob, contentType, true); forceLogout(); }
+  return res;
 }
 
 async function getBoxes()      { var r = await api('boxes?select=*&order=created_at.asc'); if (!r.ok) throw new Error(r.status); return r.json(); }
@@ -333,7 +353,7 @@ async function deleteBox(id)   { return api('boxes?device_id=eq.'+encodeURICompo
 
 // ══ STATE ══════════════════════════════════════════════════════════════
 var allBoxes = [], refreshTimer = null, activeId = null;
-var lastApkUrl = localStorage.getItem('bm_last_apk_url') || (SUPABASE_URL + '/storage/v1/object/public/apk/boxmanager-latest.apk');
+var lastApkUrl = localStorage.getItem('bm_last_apk_url') || '';
 
 // ══ LOAD ══════════════════════════════════════════════════════════════
 async function loadBoxes() {
@@ -343,7 +363,11 @@ async function loadBoxes() {
 
 function isOnline(b) {
   if (!b.last_seen) return false;
-  return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 30;
+  // Le heartbeat de la box est envoyé toutes les 15s. Le seuil doit donc être
+  // nettement supérieur (15s + latence réseau + marge) sinon la box clignote
+  // "hors ligne" pendant ~3s à chaque cycle et ses boutons se désactivent en boucle.
+  // 40s = tolère 2 heartbeats manqués avant de déclarer la box hors ligne.
+  return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 40;
 }
 
 function renderBoxes() {
@@ -400,13 +424,13 @@ function buildCard(b) {
 
   var did = ea(b.device_id);
 
-  // Boutons — tout grisé si hors ligne sauf Note et Supprimer
+  // Boutons existants
   var btnBlock = blocked
     ? '<button class="btn btn-green" onclick="unblockBox(\''+did+'\')">&#x1F513; D\u00e9bloquer</button>'
     : '<button class="btn btn-red" onclick="blockBox(\''+did+'\')"'+((!online||paused)?' disabled':'')+'>&#x1F512; Bloquer</button>';
 
   var btnPause = paused
-    ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')">&#x25B6; Play</button>'
+    ? '<button class="btn btn-green" onclick="resumeBox(\''+did+'\')">&#x25B6; Reprendre</button>'
     : '<button class="btn btn-yellow" onclick="pauseBox(\''+did+'\')"'+((!online||blocked)?' disabled':'')+'>&#x23F8; Pause</button>';
 
   var btnReboot = rebooting
@@ -415,16 +439,17 @@ function buildCard(b) {
 
   var btnMsg  = '<button class="btn btn-gray" onclick="openMsgModal(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4AC; Message</button>';
   var btnNote = '<button class="btn btn-gray" data-cmt="'+esc(b.comment||'')+'" onclick="openCommentModal(\''+did+'\',this.dataset.cmt)">&#x1F4DD; Note</button>';
-  var btnDel  = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"'+((paused||blocked)?' disabled':'')+'>&#x1F5D1;&#xFE0F;</button>';
+  var btnDel  = '<button class="btn btn-red" onclick="confirmDelete(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"'+((blocked||paused)?' disabled':'')+'>&#x1F5D1;&#xFE0F;</button>';
 
   var scrRequesting = !!b.request_screenshot;
   var btnScreenshot = scrRequesting
     ? '<button class="btn btn-gray" disabled>&#x23F3; Screenshot...</button>'
     : '<button class="btn btn-gray" onclick="requestScreenshot(\''+did+'\')"'+(!online?' disabled':'')+'>&#x1F4F7; Screenshot</button>';
 
+
   var btnApk = b.install_apk
-    ? '<button class="btn btn-gray" disabled>&#x23F3; Install...</button>'
-    : '<button class="btn btn-purple" onclick="openApkSelector(\''+did+'\')"'+(!online?' disabled title="Box hors ligne"':'')+'>&#x1F4E6; Installer APK</button>';
+    ? '<button class="btn btn-gray" disabled>&#x23F3; MàJ...</button>'
+    : '<button class="btn btn-purple" onclick="pushApk(\''+did+'\')"'+(!online||!lastApkUrl?' disabled title="'+(!lastApkUrl?'Uploadez un APK d\'abord':'Box hors ligne')+'"':'')+'>&#x1F4E6; MàJ APK</button>';
 
   return '<div class="box-card '+cardCls+'">'
     +'<div class="card-header"><div class="online-dot '+dotCls+'"></div><div class="card-label">'+esc(b.label||b.device_id)+'</div>'+badge+'</div>'
@@ -456,21 +481,7 @@ async function blockBox(id)   { await patchBox(id,{blocked:true});  showToast('B
 async function unblockBox(id) { await patchBox(id,{blocked:false}); showToast('Box d\u00e9bloqu\u00e9e'); loadBoxes(); }
 async function pauseBox(id)   { await patchBox(id,{paused:true});   showToast('Box mise en pause');       loadBoxes(); }
 async function resumeBox(id)  { await patchBox(id,{paused:false});  showToast('Box reprise');             loadBoxes(); }
-async function rebootBox(id) {
-  await patchBox(id, { reboot: true });
-  showToast('&#x1F504; Reboot envoy\u00e9...');
-  loadBoxes();
-  // Timeout 2min : reset si la box ne redémarre pas
-  setTimeout(async function() {
-    var r = await api('boxes?select=device_id,reboot&device_id=eq.'+encodeURIComponent(id));
-    var boxes = await r.json();
-    if (boxes && boxes[0] && boxes[0].reboot) {
-      await patchBox(id, { reboot: false });
-      showToast('\u26A0\uFE0F Reboot : pas de r\u00e9ponse', true);
-      loadBoxes();
-    }
-  }, 2 * 60 * 1000);
-}
+async function rebootBox(id)  { await patchBox(id,{reboot:true});   showToast('Commande reboot envoy\u00e9e'); loadBoxes(); }
 
 // ══ NOUVELLES ACTIONS ═════════════════════════════════════════════════
 
@@ -479,15 +490,6 @@ async function requestScreenshot(id) {
   await patchBox(id, { request_screenshot: true });
   showToast('&#x1F4F7; Screenshot demand\u00e9...');
   loadBoxes();
-  // Timeout 30s : reset si pas de réponse
-  setTimeout(async function() {
-    var r = await api('boxes?select=device_id,request_screenshot&device_id=eq.'+encodeURIComponent(id));
-    var boxes = await r.json();
-    if (boxes && boxes[0] && boxes[0].request_screenshot) {
-      await patchBox(id, { request_screenshot: false });
-      loadBoxes();
-    }
-  }, 30000);
 }
 
 /** Afficher le screenshot en plein écran */
@@ -500,171 +502,68 @@ function viewScreenshot(url, label, updatedAt) {
   openModal('screenshotModal');
 }
 
-// ══ APK LIBRARY ═══════════════════════════════════════════════════════
-var apkLibraryFiles = [];
-
-async function listApks() {
-  var r = await fetch(SUPABASE_URL+'/storage/v1/object/list/apk', {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prefix: '', limit: 100, offset: 0, sortBy: { column: 'name', order: 'asc' } })
-  });
-  if (!r.ok) return [];
-  return r.json();
+/** Pousser l'APK vers une box spécifique */
+async function pushApk(id) {
+  if (!lastApkUrl) { showToast('Uploadez d\'abord un APK via le bouton "Upload APK"', true); return; }
+  await patchBox(id, { install_apk: true, install_apk_url: lastApkUrl });
+  showToast('&#x1F4E6; Installation APK en cours...');
+  loadBoxes();
 }
 
-function formatBytes(b) {
-  if (!b) return '';
-  if (b < 1024*1024) return (b/1024).toFixed(0)+' KB';
-  return (b/1024/1024).toFixed(1)+' MB';
-}
-
-function apkDisplayName(filename) {
-  if (filename === 'boxmanager-latest.apk') return '\uD83D\uDCE6 BoxManager (principal)';
-  return filename.replace(/\.apk$/i, '');
-}
-
-async function openApkLibrary() {
-  document.getElementById('apkNameInput').value = '';
+/** Ouvrir le modal d'upload APK */
+function openApkUploadModal() {
   document.getElementById('apkFile').value = '';
   document.getElementById('apkUploadBtn').disabled = true;
+  var disp = document.getElementById('apkUrlDisplay');
+  if (lastApkUrl) {
+    disp.style.display = 'block';
+    disp.textContent = '&#x2705; APK actuel: ' + lastApkUrl;
+  } else {
+    disp.style.display = 'none';
+  }
   document.getElementById('apkProgress').classList.remove('active');
-  document.getElementById('apkNameWarning').style.display = 'none';
-  openModal('apkLibraryModal');
-  await refreshApkLibrary();
-}
-
-async function refreshApkLibrary() {
-  var list = document.getElementById('apkLibraryList');
-  list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>';
-  var files = await listApks();
-  if (!files || files.length === 0) {
-    list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Aucun APK dans la biblioth\u00e8que.</div>';
-    return;
-  }
-  list.innerHTML = files.map(function(f) {
-    var isMain = f.name === 'boxmanager-latest.apk';
-    var size = f.metadata && f.metadata.size ? formatBytes(f.metadata.size) : '';
-    return '<div class="apk-list-item'+(isMain?' special':'')+'"><span>&#x1F4F1;</span>'
-      +'<span class="apk-item-name">'+esc(apkDisplayName(f.name))+'</span>'
-      +(size ? '<span class="apk-item-size">'+size+'</span>' : '')
-      +'<button class="btn btn-red" style="padding:4px 8px;font-size:.72rem" onclick="deleteApkFromStorage(\''+ea(f.name)+'\')">&#x1F5D1;&#xFE0F;</button>'
-      +'</div>';
-  }).join('');
-}
-
-async function deleteApkFromStorage(name) {
-  if (!confirm('Supprimer \u00ab '+name+' \u00bb ?')) return;
-  await fetch(SUPABASE_URL+'/storage/v1/object/apk/'+encodeURIComponent(name), {
-    method: 'DELETE',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY }
-  });
-  showToast('APK supprim\u00e9');
-  await refreshApkLibrary();
-}
-
-/** Ouvrir le sélecteur d'APK pour une box */
-async function openApkSelector(id) {
-  activeId = id;
-  var list = document.getElementById('apkSelectList');
-  list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Chargement...</div>';
-  openModal('apkSelectModal');
-  apkLibraryFiles = await listApks() || [];
-  if (apkLibraryFiles.length === 0) {
-    list.innerHTML = '<div style="color:var(--text2);font-size:.85rem;padding:8px">Aucun APK disponible. Ouvrez la Biblioth\u00e8que APK pour en ajouter.</div>';
-    return;
-  }
-  list.innerHTML = apkLibraryFiles.map(function(f, i) {
-    var isMain = f.name === 'boxmanager-latest.apk';
-    return '<div class="apk-list-item apk-select-item'+(isMain?' special':'')
-      +'" onclick="confirmPushApk('+i+')">'
-      +'<span>&#x1F4F1;</span>'
-      +'<span class="apk-item-name">'+esc(apkDisplayName(f.name))+'</span>'
-      +'<span style="color:var(--purple);font-size:.8rem;font-weight:600">Installer &#x25B6;</span>'
-      +'</div>';
-  }).join('');
-}
-
-/** Confirmer et envoyer l'installation d'un APK */
-async function confirmPushApk(idx) {
-  var f = apkLibraryFiles[idx];
-  if (!f) return;
-  var url = SUPABASE_URL+'/storage/v1/object/public/apk/'+f.name;
-  var name = apkDisplayName(f.name);
-  closeModal('apkSelectModal');
-  await patchBox(activeId, { install_apk: true, install_apk_url: url });
-  showToast('&#x1F4E6; Installation de '+name+' en cours...');
-  loadBoxes();
-  var id = activeId;
-  setTimeout(async function() {
-    var r = await api('boxes?select=device_id,install_apk&device_id=eq.'+encodeURIComponent(id));
-    var boxes = await r.json();
-    if (boxes && boxes[0] && boxes[0].install_apk) {
-      await patchBox(id, { install_apk: false });
-      showToast('\u26A0\uFE0F '+name+' : pas de r\u00e9ponse (vieille version ?)', true);
-      loadBoxes();
-    }
-  }, 3 * 60 * 1000);
+  openModal('apkModal');
 }
 
 function onApkSelected() {
   var f = document.getElementById('apkFile').files[0];
   document.getElementById('apkUploadBtn').disabled = !f;
-  onApkNameInput(); // mettre à jour l'avertissement
 }
 
-function onApkNameInput() {
-  var f    = document.getElementById('apkFile').files[0];
-  var name = document.getElementById('apkNameInput').value.trim();
-  var warn = document.getElementById('apkNameWarning');
-  // Avertissement visible seulement si fichier sélectionné ET nom vide
-  warn.style.display = (f && !name) ? 'block' : 'none';
-  document.getElementById('apkUploadBtn').disabled = !f;
-}
-
-/** Uploader un APK dans Supabase Storage */
+/** Uploader l'APK dans Supabase Storage */
 async function uploadApkFile() {
-  var file    = document.getElementById('apkFile').files[0];
-  var rawName = document.getElementById('apkNameInput').value.trim();
+  var file = document.getElementById('apkFile').files[0];
   if (!file) return;
-
-  var filename = rawName
-    ? rawName.toLowerCase().replace(/[^a-z0-9._-]/g, '-').replace(/-+/g, '-') + '.apk'
-    : 'boxmanager-latest.apk';
-
-  // Confirmation si remplacement de BoxManager
-  if (filename === 'boxmanager-latest.apk') {
-    if (!confirm('\u26A0\uFE0F Cet APK va remplacer BoxManager principal.\nConfirmer ?')) return;
-  }
-
-  var btn  = document.getElementById('apkUploadBtn');
-  var bar  = document.getElementById('apkProgress');
+  var btn = document.getElementById('apkUploadBtn');
+  var bar = document.getElementById('apkProgress');
   var fill = document.getElementById('apkProgressFill');
-  btn.disabled = true; btn.textContent = 'Upload...';
-  bar.classList.add('active'); fill.style.width = '10%';
+  var disp = document.getElementById('apkUrlDisplay');
+
+  btn.disabled = true;
+  btn.textContent = 'Upload...';
+  bar.classList.add('active');
+  fill.style.width = '10%';
+
   try {
-    var r = await storageUpload('apk/'+filename, file, 'application/vnd.android.package-archive');
+    var r = await storageUpload('apk/boxmanager-latest.apk', file, 'application/vnd.android.package-archive');
     fill.style.width = '100%';
     if (r.ok) {
-      if (filename === 'boxmanager-latest.apk') {
-        lastApkUrl = SUPABASE_URL+'/storage/v1/object/public/apk/boxmanager-latest.apk';
-        localStorage.setItem('bm_last_apk_url', lastApkUrl);
-      }
-      showToast('\u2705 '+filename+' upload\u00e9 !');
-      btn.textContent = '\u2B06\uFE0F Uploader';
-      document.getElementById('apkNameInput').value = '';
-      document.getElementById('apkFile').value = '';
-      document.getElementById('apkNameWarning').style.display = 'none';
-      btn.disabled = true;
-      await refreshApkLibrary();
+      lastApkUrl = SUPABASE_URL + '/storage/v1/object/public/apk/boxmanager-latest.apk';
+      localStorage.setItem('bm_last_apk_url', lastApkUrl);
+      disp.style.display = 'block';
+      disp.textContent = '\u2705 Upload\u00e9: ' + lastApkUrl;
+      showToast('\u2705 APK upload\u00e9 — pr\u00eat \u00e0 d\u00e9ployer');
+      btn.textContent = '\u2705 Upload\u00e9 !';
     } else {
       var err = await r.text();
-      showToast('Erreur upload: '+err, true);
-      btn.textContent = '\u2B06\uFE0F Uploader'; btn.disabled = false;
+      showToast('Erreur upload: ' + err, true);
+      btn.textContent = '\u2B06\uFE0F Uploader';
+      btn.disabled = false;
     }
   } catch(e) {
-    showToast('Erreur: '+e.message, true);
-    btn.textContent = '\u2B06\uFE0F Uploader'; btn.disabled = false;
+    showToast('Erreur: ' + e.message, true);
+    btn.textContent = '\u2B06\uFE0F Uploader';
+    btn.disabled = false;
   }
   setTimeout(function(){ bar.classList.remove('active'); fill.style.width='0%'; }, 1000);
 }
@@ -757,14 +656,16 @@ async function init() {
 }
 
 function logout() {
-  sessionStorage.removeItem('bm_auth');
+  try { if (BM_SESSION && BM_SESSION.access_token) {
+    fetch(SUPABASE_URL+'/auth/v1/logout', { method:'POST', headers:{ 'apikey': SUPABASE_KEY, 'Authorization':'Bearer '+BM_SESSION.access_token } });
+  } } catch(e) {}
+  clearSession();
   if (refreshTimer) clearInterval(refreshTimer);
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
+  showLogin();
   document.getElementById('passwordInput').value = '';
 }
 
-if (sessionStorage.getItem('bm_auth') === '1') init();
+if (BM_SESSION && BM_SESSION.access_token) init();
 </script>
 </body>
 </html>
