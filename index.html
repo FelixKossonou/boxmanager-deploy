@@ -370,6 +370,16 @@ function isOnline(b) {
   return (Date.now() - new Date(b.last_seen).getTime()) / 1000 < 40;
 }
 
+// En ligne d'abord (pause ensuite, avant hors ligne) : une box active ne doit jamais
+// se perdre au milieu d'une longue liste. À égalité, ordre chronologique d'origine
+// conservé (tri stable) — pas de saut visuel entre deux box de même statut.
+function sortBoxes(list) {
+  function rank(b) { return isOnline(b) && !b.paused ? 0 : isOnline(b) ? 1 : 2; }
+  return list.map(function(b, i) { return { b: b, i: i }; })
+    .sort(function(x, y) { return rank(x.b) - rank(y.b) || x.i - y.i; })
+    .map(function(x) { return x.b; });
+}
+
 function renderBoxes() {
   var q = (document.getElementById('searchInput').value || '').toLowerCase();
   var grid = document.getElementById('boxesGrid');
@@ -377,6 +387,7 @@ function renderBoxes() {
     return (b.label||'').toLowerCase().includes(q) || (b.model||'').toLowerCase().includes(q) ||
            (b.mac_address||'').toLowerCase().includes(q) || (b.comment||'').toLowerCase().includes(q);
   }) : allBoxes;
+  list = sortBoxes(list);
   if (list.length === 0) {
     grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">&#x1F4ED;</div><p>'+(allBoxes.length===0?'Aucune box enregistr\u00e9e.':'Aucun r\u00e9sultat.')+'</p></div>';
     updateStats(); return;
