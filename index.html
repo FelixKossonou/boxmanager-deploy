@@ -462,6 +462,10 @@ function buildCard(b) {
     ? '<button class="btn btn-gray" disabled>&#x23F3; MàJ...</button>'
     : '<button class="btn btn-purple" onclick="pushApk(\''+did+'\')"'+(!online||!lastApkUrl?' disabled title="'+(!lastApkUrl?'Uploadez un APK d\'abord':'Box hors ligne')+'"':'')+'>&#x1F4E6; MàJ APK</button>';
 
+  var btnBtRemote = b.reset_bt_remote
+    ? '<button class="btn btn-gray" disabled>&#x23F3; Télécommande...</button>'
+    : '<button class="btn btn-gray" onclick="resetBtRemote(\''+did+'\',\''+ea(b.label||b.device_id)+'\')"'+(!online?' disabled':'')+' title="Oublier l\'appairage Bluetooth de la télécommande">&#x1F3AE; Reset télécommande</button>';
+
   return '<div class="box-card '+cardCls+'">'
     +'<div class="card-header"><div class="online-dot '+dotCls+'"></div><div class="card-label">'+esc(b.label||b.device_id)+'</div>'+badge+'</div>'
     +'<div class="info-rows">'
@@ -475,7 +479,7 @@ function buildCard(b) {
     +'<div class="card-actions">'
       +btnBlock+btnPause+btnReboot+btnMsg+btnNote
       +'<br style="width:100%;height:0;flex-basis:100%;border:0;margin:2px 0">'
-      +btnScreenshot+btnApk+btnDel
+      +btnScreenshot+btnApk+btnBtRemote+btnDel
     +'</div>'
   +'</div>';
 }
@@ -511,6 +515,36 @@ function viewScreenshot(url, label, updatedAt) {
     ? 'Pris ' + timeAgo(new Date(updatedAt)) : '';
   document.getElementById('screenshotDlLink').href = url;
   openModal('screenshotModal');
+}
+
+/** Oublier l'appairage Bluetooth de la télécommande d'une box (voir BtRemoteReset.java) :
+ *  permet à la télécommande du client de s'appairer à la place de l'ancienne. */
+async function resetBtRemote(id, label) {
+  if (!confirm('Supprimer l\'appairage Bluetooth de la télécommande de « ' + label + ' » ?\n\n'
+    + 'Le client devra ré-appairer sa télécommande : bouton vocal, puis maintenir GAUCHE + DROITE ~10 s.')) return;
+  var r = await patchBox(id, { reset_bt_remote: true, bt_reset_result: null });
+  if (!r.ok) { showToast('Erreur envoi de la commande', true); return; }
+  showToast('&#x1F3AE; Reset télécommande envoyé...');
+  loadBoxes();
+  watchBtReset(id);
+}
+
+/** Attend l'acquittement de la box (reset_bt_remote repasse à false) et affiche son résultat. */
+async function watchBtReset(id) {
+  for (var i = 0; i < 20; i++) {
+    await new Promise(function(res) { setTimeout(res, 3000); });
+    try {
+      var r = await api('boxes?device_id=eq.' + encodeURIComponent(id) + '&select=reset_bt_remote,bt_reset_result');
+      var rows = await r.json();
+      if (rows[0] && !rows[0].reset_bt_remote) {
+        var txt = rows[0].bt_reset_result || 'terminé';
+        showToast('&#x1F3AE; ' + esc(txt), /^erreur/.test(txt));
+        loadBoxes();
+        return;
+      }
+    } catch (e) {}
+  }
+  showToast('Reset télécommande : pas de réponse de la box', true);
 }
 
 /** Pousser l'APK vers une box spécifique */
