@@ -357,7 +357,7 @@ var lastApkUrl = localStorage.getItem('bm_last_apk_url') || '';
 
 // ══ LOAD ══════════════════════════════════════════════════════════════
 async function loadBoxes() {
-  try { allBoxes = await getBoxes(); renderBoxes(); setConnected(true); }
+  try { allBoxes = await getBoxes(); expireBtResets(allBoxes); renderBoxes(); setConnected(true); }
   catch(e) { setConnected(false); showToast('Erreur connexion Supabase', true); }
 }
 
@@ -519,11 +519,50 @@ function viewScreenshot(url, label, updatedAt) {
 
 /** Oublier l'appairage Bluetooth de la télécommande d'une box (voir BtRemoteReset.java) :
  *  permet à la télécommande du client de s'appairer à la place de l'ancienne. */
+// La commande « Reset télécommande » n'existe que depuis l'APK 1.2 (versionCode 3) :
+// une box plus ancienne ne la traiterait jamais et la commande resterait en attente.
+var BT_RESET_MIN_CODE = 3;
+function apkCode(b) { var m = /\((\d+)\)/.exec((b && b.apk_version) || ''); return m ? parseInt(m[1], 10) : 0; }
+
+// Délai défini : sans réponse de la box en 60 s, la commande est annulée automatiquement.
+// L'heure d'envoi est gardée dans ce navigateur ; une commande vue pour la 1re fois
+// (autre navigateur, page rechargée) démarre son délai à ce moment-là.
+var BT_RESET_TIMEOUT_MS  = 60000;
+var BT_RESET_TIMEOUT_MSG = 'erreur : pas de réponse de la box (annulé après 60 s)';
+function btSentLoad() { try { return JSON.parse(localStorage.getItem('bm_bt_sent') || '{}'); } catch (e) { return {}; } }
+function btSentSave(m) { try { localStorage.setItem('bm_bt_sent', JSON.stringify(m)); } catch (e) {} }
+
+/** Appelée à chaque rafraîchissement (3 s) : annule les resets restés sans réponse. */
+function expireBtResets(boxes) {
+  var m = btSentLoad(), now = Date.now(), changed = false;
+  boxes.forEach(function(b) {
+    var id = b.device_id;
+    if (b.reset_bt_remote) {
+      if (!m[id]) { m[id] = now; changed = true; }
+      else if (now - m[id] > BT_RESET_TIMEOUT_MS) {
+        b.reset_bt_remote = false; b.bt_reset_result = BT_RESET_TIMEOUT_MSG;
+        delete m[id]; changed = true;
+        // Filtre reset_bt_remote=eq.true : ne touche à rien si la box vient d'acquitter entre-temps.
+        api('boxes?device_id=eq.' + encodeURIComponent(id) + '&reset_bt_remote=eq.true',
+            { method: 'PATCH', body: JSON.stringify({ reset_bt_remote: false, bt_reset_result: BT_RESET_TIMEOUT_MSG }) });
+        showToast('&#x1F3AE; Reset télécommande annulé : la box n\'a pas répondu', true);
+      }
+    } else if (m[id]) { delete m[id]; changed = true; }
+  });
+  if (changed) btSentSave(m);
+}
+
 async function resetBtRemote(id, label) {
+  var box = allBoxes.find(function(x) { return x.device_id === id; });
+  if (box && apkCode(box) < BT_RESET_MIN_CODE) {
+    showToast('Box en v' + esc(box.apk_version || '?') + ' : faites d\'abord « MàJ APK » (version 1.2 requise)', true);
+    return;
+  }
   if (!confirm('Supprimer l\'appairage Bluetooth de la télécommande de « ' + label + ' » ?\n\n'
     + 'Le client devra ré-appairer sa télécommande : bouton vocal, puis maintenir GAUCHE + DROITE ~10 s.')) return;
   var r = await patchBox(id, { reset_bt_remote: true, bt_reset_result: null });
   if (!r.ok) { showToast('Erreur envoi de la commande', true); return; }
+  var sent = btSentLoad(); sent[id] = Date.now(); btSentSave(sent);
   showToast('&#x1F3AE; Reset télécommande envoyé...');
   loadBoxes();
   watchBtReset(id);
@@ -531,20 +570,20 @@ async function resetBtRemote(id, label) {
 
 /** Attend l'acquittement de la box (reset_bt_remote repasse à false) et affiche son résultat. */
 async function watchBtReset(id) {
-  for (var i = 0; i < 20; i++) {
+  for (var i = 0; i < 30; i++) {
     await new Promise(function(res) { setTimeout(res, 3000); });
     try {
       var r = await api('boxes?device_id=eq.' + encodeURIComponent(id) + '&select=reset_bt_remote,bt_reset_result');
       var rows = await r.json();
       if (rows[0] && !rows[0].reset_bt_remote) {
         var txt = rows[0].bt_reset_result || 'terminé';
-        showToast('&#x1F3AE; ' + esc(txt), /^erreur/.test(txt));
+        // Le délai dépassé est déjà signalé par expireBtResets (pas de double message).
+        if (txt !== BT_RESET_TIMEOUT_MSG) showToast('&#x1F3AE; ' + esc(txt), /^erreur/.test(txt));
         loadBoxes();
         return;
       }
     } catch (e) {}
   }
-  showToast('Reset télécommande : pas de réponse de la box', true);
 }
 
 /** Pousser l'APK vers une box spécifique */
