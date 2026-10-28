@@ -357,7 +357,7 @@ var lastApkUrl = localStorage.getItem('bm_last_apk_url') || '';
 
 // ══ LOAD ══════════════════════════════════════════════════════════════
 async function loadBoxes() {
-  try { allBoxes = await getBoxes(); expireBtResets(allBoxes); renderBoxes(); setConnected(true); }
+  try { allBoxes = await getBoxes(); expireStaleCommands(allBoxes); renderBoxes(); setConnected(true); }
   catch(e) { setConnected(false); showToast('Erreur connexion Supabase', true); }
 }
 
@@ -496,13 +496,14 @@ async function blockBox(id)   { await patchBox(id,{blocked:true});  showToast('B
 async function unblockBox(id) { await patchBox(id,{blocked:false}); showToast('Box d\u00e9bloqu\u00e9e'); loadBoxes(); }
 async function pauseBox(id)   { await patchBox(id,{paused:true});   showToast('Box mise en pause');       loadBoxes(); }
 async function resumeBox(id)  { await patchBox(id,{paused:false});  showToast('Box reprise');             loadBoxes(); }
-async function rebootBox(id)  { await patchBox(id,{reboot:true});   showToast('Commande reboot envoy\u00e9e'); loadBoxes(); }
+async function rebootBox(id)  { await patchBox(id,{reboot:true}); markCmdSent(id,'reboot'); showToast('Commande reboot envoy\u00e9e'); loadBoxes(); }
 
 // ══ NOUVELLES ACTIONS ═════════════════════════════════════════════════
 
 /** Demander un screenshot de la box */
 async function requestScreenshot(id) {
   await patchBox(id, { request_screenshot: true });
+  markCmdSent(id, 'request_screenshot');
   showToast('&#x1F4F7; Screenshot demand\u00e9...');
   loadBoxes();
 }
@@ -524,32 +525,44 @@ function viewScreenshot(url, label, updatedAt) {
 var BT_RESET_MIN_CODE = 3;
 function apkCode(b) { var m = /\((\d+)\)/.exec((b && b.apk_version) || ''); return m ? parseInt(m[1], 10) : 0; }
 
-// Délai défini : sans réponse de la box en 60 s, la commande est annulée automatiquement.
+// ══ DÉLAI AUTOMATIQUE DES COMMANDES ═══════════════════════════════════
+// Sans réponse de la box dans le délai, la commande est annulée automatiquement
+// (elle ne partira pas par surprise quand la box reviendra en ligne).
 // L'heure d'envoi est gardée dans ce navigateur ; une commande vue pour la 1re fois
 // (autre navigateur, page rechargée) démarre son délai à ce moment-là.
-var BT_RESET_TIMEOUT_MS  = 60000;
 var BT_RESET_TIMEOUT_MSG = 'erreur : pas de réponse de la box (annulé après 60 s)';
-function btSentLoad() { try { return JSON.parse(localStorage.getItem('bm_bt_sent') || '{}'); } catch (e) { return {}; } }
-function btSentSave(m) { try { localStorage.setItem('bm_bt_sent', JSON.stringify(m)); } catch (e) {} }
+var CMD_TIMEOUTS = {
+  reboot:             { ms: 120000, reset: { reboot: false },             toast: 'Reboot annulé : la box n\'a pas répondu' },
+  request_screenshot: { ms:  30000, reset: { request_screenshot: false }, toast: 'Screenshot annulé : la box n\'a pas répondu' },
+  install_apk:        { ms: 180000, reset: { install_apk: false },        toast: 'MàJ APK annulée : la box n\'a pas répondu' },
+  reset_bt_remote:    { ms:  60000, reset: { reset_bt_remote: false, bt_reset_result: BT_RESET_TIMEOUT_MSG },
+                                    toast: 'Reset télécommande annulé : la box n\'a pas répondu' }
+};
+function cmdSentLoad() { try { return JSON.parse(localStorage.getItem('bm_cmd_sent') || '{}'); } catch (e) { return {}; } }
+function cmdSentSave(m) { try { localStorage.setItem('bm_cmd_sent', JSON.stringify(m)); } catch (e) {} }
+/** À appeler juste après l'envoi d'une commande : démarre son délai. */
+function markCmdSent(id, field) { var m = cmdSentLoad(); m[id + '|' + field] = Date.now(); cmdSentSave(m); }
 
-/** Appelée à chaque rafraîchissement (3 s) : annule les resets restés sans réponse. */
-function expireBtResets(boxes) {
-  var m = btSentLoad(), now = Date.now(), changed = false;
+/** Appelée à chaque rafraîchissement (3 s) : annule les commandes restées sans réponse. */
+function expireStaleCommands(boxes) {
+  var m = cmdSentLoad(), now = Date.now(), changed = false;
   boxes.forEach(function(b) {
-    var id = b.device_id;
-    if (b.reset_bt_remote) {
-      if (!m[id]) { m[id] = now; changed = true; }
-      else if (now - m[id] > BT_RESET_TIMEOUT_MS) {
-        b.reset_bt_remote = false; b.bt_reset_result = BT_RESET_TIMEOUT_MSG;
-        delete m[id]; changed = true;
-        // Filtre reset_bt_remote=eq.true : ne touche à rien si la box vient d'acquitter entre-temps.
-        api('boxes?device_id=eq.' + encodeURIComponent(id) + '&reset_bt_remote=eq.true',
-            { method: 'PATCH', body: JSON.stringify({ reset_bt_remote: false, bt_reset_result: BT_RESET_TIMEOUT_MSG }) });
-        showToast('&#x1F3AE; Reset télécommande annulé : la box n\'a pas répondu', true);
-      }
-    } else if (m[id]) { delete m[id]; changed = true; }
+    Object.keys(CMD_TIMEOUTS).forEach(function(field) {
+      var key = b.device_id + '|' + field, cfg = CMD_TIMEOUTS[field];
+      if (b[field]) {
+        if (!m[key]) { m[key] = now; changed = true; }
+        else if (now - m[key] > cfg.ms) {
+          Object.assign(b, cfg.reset);   // affichage immédiat
+          delete m[key]; changed = true;
+          // Filtre <champ>=eq.true : ne touche à rien si la box vient d'acquitter entre-temps.
+          api('boxes?device_id=eq.' + encodeURIComponent(b.device_id) + '&' + field + '=eq.true',
+              { method: 'PATCH', body: JSON.stringify(cfg.reset) });
+          showToast('&#x23F1; ' + cfg.toast, true);
+        }
+      } else if (m[key]) { delete m[key]; changed = true; }
+    });
   });
-  if (changed) btSentSave(m);
+  if (changed) cmdSentSave(m);
 }
 
 async function resetBtRemote(id, label) {
@@ -562,7 +575,7 @@ async function resetBtRemote(id, label) {
     + 'Le client devra ré-appairer sa télécommande : bouton vocal, puis maintenir GAUCHE + DROITE ~10 s.')) return;
   var r = await patchBox(id, { reset_bt_remote: true, bt_reset_result: null });
   if (!r.ok) { showToast('Erreur envoi de la commande', true); return; }
-  var sent = btSentLoad(); sent[id] = Date.now(); btSentSave(sent);
+  markCmdSent(id, 'reset_bt_remote');
   showToast('&#x1F3AE; Reset télécommande envoyé...');
   loadBoxes();
   watchBtReset(id);
@@ -577,7 +590,7 @@ async function watchBtReset(id) {
       var rows = await r.json();
       if (rows[0] && !rows[0].reset_bt_remote) {
         var txt = rows[0].bt_reset_result || 'terminé';
-        // Le délai dépassé est déjà signalé par expireBtResets (pas de double message).
+        // Le délai dépassé est déjà signalé par expireStaleCommands (pas de double message).
         if (txt !== BT_RESET_TIMEOUT_MSG) showToast('&#x1F3AE; ' + esc(txt), /^erreur/.test(txt));
         loadBoxes();
         return;
@@ -590,6 +603,7 @@ async function watchBtReset(id) {
 async function pushApk(id) {
   if (!lastApkUrl) { showToast('Uploadez d\'abord un APK via le bouton "Upload APK"', true); return; }
   await patchBox(id, { install_apk: true, install_apk_url: lastApkUrl });
+  markCmdSent(id, 'install_apk');
   showToast('&#x1F4E6; Installation APK en cours...');
   loadBoxes();
 }
